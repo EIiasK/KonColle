@@ -1,4 +1,4 @@
-# 导入必要的库
+# 导入必要的
 import tensorflow as tf
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras.applications import MobileNet
