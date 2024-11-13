@@ -1,4 +1,4 @@
-@set "VIRTUAL_ENV=D:\Programming\Project\github\ConColle\.venv"
+@set "VIRTUAL_ENV=D:\Programming\Project\github\KonColle\.venv"
 
 @set "VIRTUAL_ENV_PROMPT="
 @if NOT DEFINED VIRTUAL_ENV_PROMPT (

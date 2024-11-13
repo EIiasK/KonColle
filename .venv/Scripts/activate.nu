@@ -32,7 +32,7 @@ export-env {
       }
     }
 
-    let virtual_env = 'D:\Programming\Project\github\ConColle\.venv'
+    let virtual_env = 'D:\Programming\Project\github\KonColle\.venv'
     let bin = 'Scripts'
 
     let is_windows = ($nu.os-info.family) == 'windows'
