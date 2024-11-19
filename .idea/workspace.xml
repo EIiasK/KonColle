@@ -4,7 +4,54 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3b69ddfd-0191-4e1c-8ba7-edbf8ab409f3" name="Changes" comment="添加模型训练器模板" />
+    <list default="true" id="3b69ddfd-0191-4e1c-8ba7-edbf8ab409f3" name="Changes" comment="更新gitignore,屏蔽.idea">
+      <change afterPath="$PROJECT_DIR$/Datasets/annotations/instances_Train.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Datasets/images/supply/full_22.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Datasets/images/supply/full_23.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Datasets/images/supply/full_25.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Datasets/images/supply/full_26.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_23.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_24.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/2024-11-13T19.35.15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_24.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_1.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_10.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_11.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_11.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_19.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_19.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_20.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_20.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_21.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_21.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_4.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_6.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_6.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_7.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_8.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/full_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/full_9.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_25.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_10.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_11.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_11.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_12.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_12.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_13.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_13.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_14.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_14.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_15.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_16.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_16.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_17.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_17.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_18.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_18.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_19.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_19.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_2.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_20.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_20.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_21.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_21.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_22.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_22.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_3.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_4.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_5.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_6.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_6.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_7.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_8.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Datasets/images/supply/新建文件夹/resupply_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/Datasets/images/supply/resupply_9.png" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/KC/Model_Trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/KC/Model_Trainer.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -33,8 +80,10 @@
     "git-widget-placeholder": "main",
     "last_opened_file_path": "D:/Programming/Project/py/.venv/Scripts",
     "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.stylelint": "true",
     "node.js.detected.package.tslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.stylelint": "",
     "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "settings.editor.selected.configurable": "project.propVCSSupport.Confirmation",
@@ -63,7 +112,11 @@
       <workItem from="1731490289926" duration="202000" />
       <workItem from="1731490822922" duration="603000" />
       <workItem from="1731493098098" duration="643000" />
-      <workItem from="1731495698207" duration="787000" />
+      <workItem from="1731495698207" duration="1809000" />
+      <workItem from="1731741573823" duration="4000" />
+      <workItem from="1731828290793" duration="47000" />
+      <workItem from="1731995136188" duration="57000" />
+      <workItem from="1731995199085" duration="5046000" />
     </task>
     <task id="LOCAL-00001" summary="添加模型训练器模板">
       <option name="closed" value="true" />
@@ -81,7 +134,23 @@
       <option name="project" value="LOCAL" />
       <updated>1731495964697</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="添加模型训练器模板">
+      <option name="closed" value="true" />
+      <created>1731496544992</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1731496544992</updated>
+    </task>
+    <task id="LOCAL-00004" summary="更新gitignore,屏蔽.idea">
+      <option name="closed" value="true" />
+      <created>1731496843315</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1731496843315</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -100,6 +169,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="添加模型训练器模板" />
-    <option name="LAST_COMMIT_MESSAGE" value="添加模型训练器模板" />
+    <MESSAGE value="更新gitignore,屏蔽.idea" />
+    <option name="LAST_COMMIT_MESSAGE" value="更新gitignore,屏蔽.idea" />
   </component>
 </project>
