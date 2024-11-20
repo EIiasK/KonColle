@@ -13,28 +13,25 @@ from tqdm import tqdm
 import copy
 from PIL import Image
 
-
-os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # 0: 全部信息, 1: 信息+警告, 2: 仅错误, 3: 严重错误
-os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"  # 禁用 OneDNN
-logging.set_verbosity_error()  # 设置为只显示错误
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+logging.set_verbosity_error()
 
 # ==================== 自定义数据集类 ====================
-
 
 def custom_collate_fn(batch):
     images = [item[0] for item in batch]
     targets = [item[1] for item in batch]
     return torch.stack(images, dim=0), targets
 
-
 def process_annotations(target):
-    # 主标签：category_id
+    """
+    分离主标签和副属性。
+    如果没有副属性，则创建一个空字典。
+    """
     main_label = target["category_id"]
-
-    # 副属性：difficulty, confidence
-    sub_attributes = target.get("attributes", {})
+    sub_attributes = target.get("attributes", {"difficulty": "unknown", "confidence": 1.0})
     return main_label, sub_attributes
-
 
 class CustomCocoDataset(CocoDetection):
     def __init__(self, root, annotation_file, transform=None):
@@ -43,37 +40,32 @@ class CustomCocoDataset(CocoDetection):
         :param annotation_file: COCO 格式标签文件
         :param transform: 数据增强方法
         """
-        self.root = root  # 保存图片根目录
+        self.root = root
         super().__init__(root=root, annFile=annotation_file, transform=transform)
 
-    class CustomCocoDataset(CocoDetection):
-        def __init__(self, root, annotation_file, transform=None):
-            """
-            :param root: 图片的根目录
-            :param annotation_file: COCO 格式标签文件
-            :param transform: 数据增强方法
-            """
-            self.root = root  # 保存图片根目录
-            super().__init__(root=root, annFile=annotation_file, transform=transform)
+    def __getitem__(self, idx):
+        """
+        获取图片和标签，确保路径正确拼接，并处理副属性。
+        """
+        image, targets = super().__getitem__(idx)
+        file_name = self.coco.loadImgs(targets[0]['image_id'])[0]['file_name']
+        full_path = os.path.join(self.root, file_name)
 
-        def __getitem__(self, idx):
-            """
-            获取图片和标签，确保路径正确拼接。
-            """
-            image, target = super().__getitem__(idx)  # 调用父类方法获取图片和标签
-            file_name = self.coco.loadImgs(target['image_id'])[0]['file_name']  # 从标签中获取文件名
-            full_path = os.path.join(self.root, file_name)  # 拼接完整路径
+        if not os.path.exists(full_path):
+            raise FileNotFoundError(f"未找到图像文件: {full_path}")
 
-            if not os.path.exists(full_path):  # 如果路径无效，抛出异常
-                raise FileNotFoundError(f"未找到图像文件: {full_path}")
+        # 加载图像
+        image = Image.open(full_path).convert("RGB")
+        if self.transform:
+            image = self.transform(image)
 
-            # 加载图像
-            image = Image.open(full_path).convert("RGB")
+        # 分离主标签和副属性
+        processed_targets = []
+        for t in targets:
+            main_label, sub_attributes = process_annotations(t)
+            processed_targets.append({"label": main_label, "attributes": sub_attributes})
 
-            # 应用变换
-            if self.transform:
-                image = self.transform(image)
-            return image, target
+        return image, processed_targets
 
 
 def main():
@@ -175,14 +167,15 @@ def main():
             progress_bar = tqdm(enumerate(dataloader), total=len(dataloader), desc=f"{phase} Phase", ncols=100)
 
             for batch_idx, (images, targets) in progress_bar:
-                images = [img.to(device) for img in images]
-                targets = [{k: torch.tensor(v).to(device) for k, v in t.items()} for t in targets]
+                images = images.to(device)
+                labels = [t["label"] for t in targets]
+                attributes = [t["attributes"] for t in targets]
 
                 optimizer.zero_grad()
                 with torch.set_grad_enabled(phase == "train"):
                     with autocast():
                         outputs = model(images)
-                        loss = criterion(outputs, targets)
+                        loss = criterion(outputs.logits, torch.tensor(labels).to(device))
                     if phase == "train":
                         scaler.scale(loss).backward()
                         scaler.step(optimizer)
@@ -208,3 +201,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
