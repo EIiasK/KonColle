@@ -3,7 +3,7 @@ import os
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
-from transformers import DetrForObjectDetection, AutoConfig
+from transformers import DetrForObjectDetection, AutoConfig, logging
 from torchvision.transforms import transforms
 from torchvision.datasets import CocoDetection
 from torch.optim import AdamW
@@ -11,21 +11,69 @@ from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torch.amp import autocast, GradScaler
 from tqdm import tqdm
 import copy
+from PIL import Image
+
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"  # 0: 全部信息, 1: 信息+警告, 2: 仅错误, 3: 严重错误
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"  # 禁用 OneDNN
+logging.set_verbosity_error()  # 设置为只显示错误
 
 # ==================== 自定义数据集类 ====================
-class CustomCocoDataset(CocoDetection):
-    def __init__(self, dataset_paths, annotation_file, transform=None):
-        self.dataset_paths = dataset_paths
-        self.annotation_file = annotation_file
-        self.transform = transform
-        super(CustomCocoDataset, self).__init__(root=list(dataset_paths.values())[0], annFile=annotation_file, transform=transform)
 
-    def __getitem__(self, idx):
-        image, target = super(CustomCocoDataset, self).__getitem__(idx)
-        return image, target
+
+def custom_collate_fn(batch):
+    images = [item[0] for item in batch]
+    targets = [item[1] for item in batch]
+    return torch.stack(images, dim=0), targets
+
+
+def process_annotations(target):
+    # 主标签：category_id
+    main_label = target["category_id"]
+
+    # 副属性：difficulty, confidence
+    sub_attributes = target.get("attributes", {})
+    return main_label, sub_attributes
+
+
+class CustomCocoDataset(CocoDetection):
+    def __init__(self, root, annotation_file, transform=None):
+        """
+        :param root: 图片的根目录
+        :param annotation_file: COCO 格式标签文件
+        :param transform: 数据增强方法
+        """
+        self.root = root  # 保存图片根目录
+        super().__init__(root=root, annFile=annotation_file, transform=transform)
+
+    class CustomCocoDataset(CocoDetection):
+        def __init__(self, root, annotation_file, transform=None):
+            """
+            :param root: 图片的根目录
+            :param annotation_file: COCO 格式标签文件
+            :param transform: 数据增强方法
+            """
+            self.root = root  # 保存图片根目录
+            super().__init__(root=root, annFile=annotation_file, transform=transform)
+
+        def __getitem__(self, idx):
+            """
+            获取图片和标签，确保路径正确拼接。
+            """
+            image, target = super().__getitem__(idx)  # 调用父类方法获取图片和标签
+            file_name = self.coco.loadImgs(target['image_id'])[0]['file_name']  # 从标签中获取文件名
+            full_path = os.path.join(self.root, file_name)  # 拼接完整路径
+
+            if not os.path.exists(full_path):  # 如果路径无效，抛出异常
+                raise FileNotFoundError(f"未找到图像文件: {full_path}")
+
+            # 加载图像
+            image = Image.open(full_path).convert("RGB")
+
+            # 应用变换
+            if self.transform:
+                image = self.transform(image)
+            return image, target
 
 
 def main():
@@ -48,14 +96,15 @@ def main():
     for base_dir in base_dirs:
         for entry in os.scandir(base_dir):
             if entry.is_dir():
-                folder_name = os.path.basename(entry.path)
-                dataset_paths[folder_name] = entry.path
+                relative_path = os.path.relpath(entry.path,
+                                                start=r"D:\Programming\Project\github\KonColle\Datasets\images")
+                dataset_paths[relative_path] = entry.path
 
     print("自动生成的分类路径:")
     for category, path in dataset_paths.items():
         print(f"类别: {category}, 路径: {path}")
 
-    annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_Train.json"
+    annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_Train_fixed.json"
     img_width, img_height = 1111, 667
     batch_size = 8
     epochs = 30
@@ -76,11 +125,16 @@ def main():
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
 
-    train_dataset = CustomCocoDataset(dataset_paths, annotation_file, transform=train_transforms)
-    val_dataset = CustomCocoDataset(dataset_paths, annotation_file, transform=val_transforms)
+    dataset_paths_root = r"D:\Programming\Project\github\KonColle\Datasets\images"
+    train_dataset = CustomCocoDataset(dataset_paths_root, annotation_file, transform=train_transforms)
+    val_dataset = CustomCocoDataset(dataset_paths_root, annotation_file, transform=val_transforms)
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4)
+    train_loader = DataLoader(
+        train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, collate_fn=custom_collate_fn
+    )
+    val_loader = DataLoader(
+        val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, collate_fn=custom_collate_fn
+    )
 
     # ==================== 构建模型 ====================
     config_path = r"D:\Programming\Project\github\KonColle\KC\Models\DETR\config.json"
