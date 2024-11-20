@@ -13,7 +13,7 @@ import numpy as np
 from torch.amp import autocast, GradScaler
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
-
+from torchvision.datasets import CocoDetection
 # ==================== 数据集定义 ====================
 
 class CustomDataset(Dataset):
