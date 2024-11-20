@@ -165,17 +165,33 @@ def main():
 
             running_loss = 0.0
             progress_bar = tqdm(enumerate(dataloader), total=len(dataloader), desc=f"{phase} Phase", ncols=100)
+            # for batch_idx, (images, targets) in progress_bar:
+            #     print(f"Batch {batch_idx} targets structure: {targets}")  # 调试输出
+            #     break  # 仅输出第一个批次，避免过多输出
 
             for batch_idx, (images, targets) in progress_bar:
-                images = images.to(device)
-                labels = [t["label"] for t in targets]
-                attributes = [t["attributes"] for t in targets]
+                images = torch.stack([img.to(device) for img in images])
 
+                # 获取模型输出
+                with autocast(device_type=device.type):
+                    outputs = model(images)
+
+                # 提取 labels
+                num_queries = outputs.logits.shape[1]
+                batch_labels = []
+                for target_batch in targets:
+                    query_labels = [0] * num_queries  # 初始化为背景类
+                    for i, obj in enumerate(target_batch):
+                        if i < num_queries:
+                            query_labels[i] = obj["label"]  # 分配标签
+                    batch_labels.append(query_labels)
+                labels = torch.tensor(batch_labels, dtype=torch.long).to(device)
+
+                # 计算损失
                 optimizer.zero_grad()
                 with torch.set_grad_enabled(phase == "train"):
-                    with autocast():
-                        outputs = model(images)
-                        loss = criterion(outputs.logits, torch.tensor(labels).to(device))
+                    loss = criterion(outputs.logits.view(-1, outputs.logits.shape[-1]),
+                                     labels.view(-1))  # 调整 logits 和 labels 的形状
                     if phase == "train":
                         scaler.scale(loss).backward()
                         scaler.step(optimizer)
