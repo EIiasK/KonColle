@@ -164,10 +164,9 @@ def main():
                 dataloader = val_loader
 
             running_loss = 0.0
+            running_corrects = 0
+            running_total = 0
             progress_bar = tqdm(enumerate(dataloader), total=len(dataloader), desc=f"{phase} Phase", ncols=100)
-            # for batch_idx, (images, targets) in progress_bar:
-            #     print(f"Batch {batch_idx} targets structure: {targets}")  # 调试输出
-            #     break  # 仅输出第一个批次，避免过多输出
 
             for batch_idx, (images, targets) in progress_bar:
                 images = torch.stack([img.to(device) for img in images])
@@ -197,12 +196,41 @@ def main():
                         scaler.step(optimizer)
                         scaler.update()
 
+                # 计算准确率
+                preds = torch.argmax(outputs.logits, dim=-1)  # 获取预测结果
+                correct = 0
+                total = 0
+                for pred, label in zip(preds, labels):
+                    for i in range(num_queries):
+                        if label[i] != 0:  # 忽略背景类
+                            total += 1
+                            if pred[i] == label[i]:
+                                correct += 1
+                batch_accuracy = correct / total if total > 0 else 0  # 避免除以零
+
+                running_corrects += correct
+                running_total += total
+
+                # 更新累计损失
                 running_loss += loss.item()
-                progress_bar.set_postfix({"Loss": f"{running_loss / ((batch_idx + 1) * batch_size):.4f}"})
 
+                # 更新进度条显示内容
+                progress_bar.set_postfix({
+                    "Loss": f"{running_loss / ((batch_idx + 1) * batch_size):.4f}",
+                    "Batch Acc": f"{batch_accuracy:.4f}"  # 当前批次准确率
+                })
+
+            # 计算阶段损失和准确率
             epoch_loss = running_loss / len(dataloader.dataset)
-            print(f"{phase} Loss: {epoch_loss:.4f}")
+            if running_total > 0:
+                epoch_accuracy = running_corrects / running_total
+            else:
+                epoch_accuracy = 0.0  # 避免除以零
 
+            print(f"{phase} Loss: {epoch_loss:.4f}")
+            print(f"{phase} Accuracy: {epoch_accuracy:.4f}")
+
+            # 保存最佳模型
             if phase == "val" and epoch_loss < best_loss:
                 best_loss = epoch_loss
                 best_model_wts = copy.deepcopy(model.state_dict())
