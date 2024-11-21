@@ -33,6 +33,25 @@ def process_annotations(target):
     sub_attributes = target.get("attributes", {"difficulty": "unknown", "confidence": 1.0})
     return main_label, sub_attributes
 
+
+def get_image_categories(base_dir):
+    """
+    递归扫描目录，提取所有包含图片的子目录，并以子目录名称作为类别名。
+    :param base_dir: 根目录路径
+    :return: 一个字典 {类别名: 子目录路径}
+    """
+    categories = {}
+
+    for root, dirs, files in os.walk(base_dir):
+        # 检查当前目录下是否存在图片文件
+        image_files = [file for file in files if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif'))]
+        if image_files:  # 如果找到图片文件，将当前目录添加为类别
+            relative_path = os.path.relpath(root, start=base_dir)
+            categories[relative_path] = root
+
+    return categories
+
+
 class CustomCocoDataset(CocoDetection):
     def __init__(self, root, annotation_file, transform=None):
         """
@@ -70,27 +89,8 @@ class CustomCocoDataset(CocoDetection):
 
 def main():
     # ==================== 参数配置 ====================
-    base_dirs = [
-        r'D:\Programming\Project\github\KonColle\Datasets\images\main_menu',
-        r'D:\Programming\Project\github\KonColle\Datasets\images\supply',
-        r'D:\Programming\Project\github\KonColle\Datasets\images\mission_select',
-        r'D:\Programming\Project\github\KonColle\Datasets\images\waters\map_1',
-        r'D:\Programming\Project\github\KonColle\Datasets\images\waters\map_5',
-        r'D:\Programming\Project\github\KonColle\Datasets\images\waters\map_5\map_5_info',
-        r'D:\Programming\Project\github\KonColle\Datasets\images\waters\map_5\map_5_fleet',
-        r'D:\Programming\Project\github\KonColle\Datasets\images\waters\in_map\advance_on',
-        r'D:\Programming\Project\github\KonColle\Datasets\images\waters\in_map\combat_rating',
-        r'D:\Programming\Project\github\KonColle\Datasets\images\waters\in_map\combat_result',
-        r'D:\Programming\Project\github\KonColle\Datasets\images\waters\in_map\navigation',
-    ]
-
-    dataset_paths = {}
-    for base_dir in base_dirs:
-        for entry in os.scandir(base_dir):
-            if entry.is_dir():
-                relative_path = os.path.relpath(entry.path,
-                                                start=r"D:\Programming\Project\github\KonColle\Datasets\images")
-                dataset_paths[relative_path] = entry.path
+    base_dir = r"D:\Programming\Project\github\KonColle\Datasets\images"
+    dataset_paths = get_image_categories(base_dir)
 
     print("自动生成的分类路径:")
     for category, path in dataset_paths.items():
