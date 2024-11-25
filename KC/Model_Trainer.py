@@ -12,6 +12,8 @@ from torch.amp import autocast, GradScaler
 from tqdm import tqdm
 import copy
 from PIL import Image
+from torchvision.ops import box_iou
+from pycocotools.coco import COCO
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
@@ -21,17 +23,11 @@ logging.set_verbosity_error()
 
 def custom_collate_fn(batch):
     images = [item[0] for item in batch]
-    targets = [item[1] for item in batch]
-    return torch.stack(images, dim=0), targets
-
-def process_annotations(target):
-    """
-    分离主标签和副属性。
-    如果没有副属性，则创建一个空字典。
-    """
-    main_label = target["category_id"]
-    sub_attributes = target.get("attributes", {"difficulty": "unknown", "confidence": 1.0})
-    return main_label, sub_attributes
+    detection_targets = [item[1] for item in batch]
+    classification_targets = [item[2] for item in batch]
+    # 将classification_targets从列表转换为张量
+    classification_targets = torch.tensor([t.item() for t in classification_targets])
+    return images, detection_targets, classification_targets
 
 
 def get_image_categories(base_dir):
@@ -54,37 +50,46 @@ def get_image_categories(base_dir):
 
 class CustomCocoDataset(CocoDetection):
     def __init__(self, root, annotation_file, transform=None):
-        """
-        :param root: 图片的根目录
-        :param annotation_file: COCO 格式标签文件
-        :param transform: 数据增强方法
-        """
-        self.root = root
-        super().__init__(root=root, annFile=annotation_file, transform=transform)
+        super().__init__(root=root, annFile=annotation_file)
+        self.transform = transform
+
+        # 获取所有类别的名称和ID，用于图像分类标签
+        self.coco = COCO(annotation_file)
+        cats = self.coco.loadCats(self.coco.getCatIds())
+        self.class_id_to_name = {cat['id']: cat['name'] for cat in cats}
+        self.class_name_to_id = {v: k for k, v in self.class_id_to_name.items()}
 
     def __getitem__(self, idx):
-        """
-        获取图片和标签，确保路径正确拼接，并处理副属性。
-        """
-        image, targets = super().__getitem__(idx)
-        file_name = self.coco.loadImgs(targets[0]['image_id'])[0]['file_name']
-        full_path = os.path.join(self.root, file_name)
+        img, ann = super().__getitem__(idx)
+        if self.transform is not None:
+            img = self.transform(img)
 
-        if not os.path.exists(full_path):
-            raise FileNotFoundError(f"未找到图像文件: {full_path}")
+        # 获取目标检测标签
+        target = {}
+        boxes = []
+        labels = []
+        area = []
+        iscrowd = []
+        for obj in ann:
+            xmin = obj['bbox'][0]
+            ymin = obj['bbox'][1]
+            width = obj['bbox'][2]
+            height = obj['bbox'][3]
+            boxes.append([xmin, ymin, xmin + width, ymin + height])
+            labels.append(obj['category_id'])
+            area.append(obj['area'])
+            iscrowd.append(obj.get('iscrowd', 0))
+        target['boxes'] = torch.as_tensor(boxes, dtype=torch.float32)
+        target['class_labels'] = torch.as_tensor(labels, dtype=torch.int64)  # 已修改键名
+        target['image_id'] = torch.tensor([idx])
+        target['area'] = torch.as_tensor(area, dtype=torch.float32)
+        target['iscrowd'] = torch.as_tensor(iscrowd, dtype=torch.int64)
 
-        # 加载图像
-        image = Image.open(full_path).convert("RGB")
-        if self.transform:
-            image = self.transform(image)
+        # 获取图像分类标签（假设每张图像的分类标签为其中出现次数最多的类别）
+        classification_label = torch.mode(target['class_labels'])[0]
 
-        # 分离主标签和副属性
-        processed_targets = []
-        for t in targets:
-            main_label, sub_attributes = process_annotations(t)
-            processed_targets.append({"label": main_label, "attributes": sub_attributes})
+        return img, target, classification_label
 
-        return image, processed_targets
 
 
 def main():
@@ -98,10 +103,10 @@ def main():
 
     annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_Train_fixed.json"
     img_width, img_height = 1111, 667
-    batch_size = 8
+    batch_size = 4  # 减小batch_size以适应多任务训练的显存需求
     epochs = 30
     learning_rate = 1e-5
-    model_save_path = r"D:\Programming\Project\github\KonColle\KC\Models\detr_model.pth"
+    model_save_path = r"D:\Programming\Project\github\KonColle\KC\Models\detr_multitask_model.pth"
 
     # ==================== 数据预处理和加载 ====================
     train_transforms = transforms.Compose([
@@ -138,15 +143,20 @@ def main():
         config=config
     )
 
+    # 添加图像分类的全连接层
+    num_classes = len(train_dataset.class_id_to_name) + 1  # 加1表示背景类
+    model.classification_head = nn.Linear(config.hidden_size, num_classes)
+
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)
     print("模型加载成功")
 
     # ==================== 定义损失函数和优化器 ====================
-    criterion = nn.CrossEntropyLoss()
+    detection_criterion = nn.CrossEntropyLoss()
+    classification_criterion = nn.CrossEntropyLoss()
     optimizer = AdamW(model.parameters(), lr=learning_rate)
     scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=3)
-    scaler = GradScaler()
+    scaler = GradScaler("cuda")
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_loss = float("inf")
@@ -164,71 +174,74 @@ def main():
                 dataloader = val_loader
 
             running_loss = 0.0
+            running_classification_loss = 0.0  # 新增：累计分类损失
+            running_detection_loss = 0.0  # 新增：累计检测损失
             running_corrects = 0
             running_total = 0
-            progress_bar = tqdm(enumerate(dataloader), total=len(dataloader), desc=f"{phase} Phase", ncols=100)
+            progress_bar = tqdm(enumerate(dataloader), total=len(dataloader), desc=f"{phase} Phase")
 
-            for batch_idx, (images, targets) in progress_bar:
+            for batch_idx, (images, detection_targets, classification_targets) in progress_bar:
                 images = torch.stack([img.to(device) for img in images])
+                detection_targets = [{k: v.to(device) for k, v in t.items()} for t in detection_targets]
+                classification_targets = classification_targets.to(device)
 
-                # 获取模型输出
-                with autocast(device_type=device.type):
-                    outputs = model(images)
-
-                # 提取 labels
-                num_queries = outputs.logits.shape[1]
-                batch_labels = []
-                for target_batch in targets:
-                    query_labels = [0] * num_queries  # 初始化为背景类
-                    for i, obj in enumerate(target_batch):
-                        if i < num_queries:
-                            query_labels[i] = obj["label"]  # 分配标签
-                    batch_labels.append(query_labels)
-                labels = torch.tensor(batch_labels, dtype=torch.long).to(device)
-
-                # 计算损失
                 optimizer.zero_grad()
                 with torch.set_grad_enabled(phase == "train"):
-                    loss = criterion(outputs.logits.view(-1, outputs.logits.shape[-1]),
-                                     labels.view(-1))  # 调整 logits 和 labels 的形状
+                    with autocast(device_type=device.type):
+                        outputs = model(images, labels=detection_targets)
+
+                        # 分类任务的输出
+                        encoder_outputs = outputs.encoder_last_hidden_state  # [batch_size, num_patches, hidden_dim]
+                        pooled_output = encoder_outputs.mean(dim=1)  # [batch_size, hidden_dim]
+                        classification_logits = model.classification_head(pooled_output)
+
+                        # 计算分类损失
+                        classification_loss = classification_criterion(classification_logits, classification_targets)
+
+                        # 计算检测损失
+                        detection_loss = outputs.loss
+
+                        # 总损失（可以根据需要调整权重）
+                        total_loss = classification_loss + detection_loss
+
                     if phase == "train":
-                        scaler.scale(loss).backward()
+                        scaler.scale(total_loss).backward()
                         scaler.step(optimizer)
                         scaler.update()
 
-                # 计算准确率
-                preds = torch.argmax(outputs.logits, dim=-1)  # 获取预测结果
-                correct = 0
-                total = 0
-                for pred, label in zip(preds, labels):
-                    for i in range(num_queries):
-                        if label[i] != 0:  # 忽略背景类
-                            total += 1
-                            if pred[i] == label[i]:
-                                correct += 1
-                batch_accuracy = correct / total if total > 0 else 0  # 避免除以零
-
-                running_corrects += correct
-                running_total += total
-
                 # 更新累计损失
-                running_loss += loss.item()
+                batch_size_current = images.size(0)
+                running_loss += total_loss.item() * batch_size_current
+                running_classification_loss += classification_loss.item() * batch_size_current  # 累计分类损失
+                running_detection_loss += detection_loss.item() * batch_size_current  # 累计检测损失
+
+                # 计算分类准确率
+                _, preds = torch.max(classification_logits, 1)
+                running_corrects += torch.sum(preds == classification_targets.data)
+                running_total += batch_size_current
 
                 # 更新进度条显示内容
                 progress_bar.set_postfix({
-                    "Loss": f"{running_loss / ((batch_idx + 1) * batch_size):.4f}",
-                    "Batch Acc": f"{batch_accuracy:.4f}"  # 当前批次准确率
+                    "Total Loss": f"{running_loss / running_total:.4f}",
+                    "Cls Loss": f"{running_classification_loss / running_total:.4f}",
+                    "Det Loss": f"{running_detection_loss / running_total:.4f}",
+                    "Acc": f"{running_corrects.double() / running_total:.4f}"
                 })
 
             # 计算阶段损失和准确率
             epoch_loss = running_loss / len(dataloader.dataset)
-            if running_total > 0:
-                epoch_accuracy = running_corrects / running_total
-            else:
-                epoch_accuracy = 0.0  # 避免除以零
+            epoch_cls_loss = running_classification_loss / len(dataloader.dataset)
+            epoch_det_loss = running_detection_loss / len(dataloader.dataset)
+            epoch_accuracy = running_corrects.double() / len(dataloader.dataset)
 
-            print(f"{phase} Loss: {epoch_loss:.4f}")
+            print(f"{phase} Total Loss: {epoch_loss:.4f}")
+            print(f"{phase} Classification Loss: {epoch_cls_loss:.4f}")
+            print(f"{phase} Detection Loss: {epoch_det_loss:.4f}")
             print(f"{phase} Accuracy: {epoch_accuracy:.4f}")
+
+            # 学习率调整
+            if phase == "val":
+                scheduler.step(epoch_loss)
 
             # 保存最佳模型
             if phase == "val" and epoch_loss < best_loss:
@@ -245,4 +258,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
