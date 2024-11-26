@@ -2,12 +2,12 @@
 import os
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 from transformers import DetrForObjectDetection, AutoConfig, logging
 from torchvision.transforms import transforms
 from torchvision.datasets import CocoDetection
 from torch.optim import AdamW
-from torch.optim.lr_scheduler import ReduceLROnPlateau
+from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.amp import autocast, GradScaler
 from tqdm import tqdm
 import copy
@@ -56,6 +56,9 @@ class CustomCocoDataset(CocoDetection):
         # 获取所有类别的名称和ID，用于图像分类标签
         self.coco = COCO(annotation_file)
         cats = self.coco.loadCats(self.coco.getCatIds())
+        self.class_ids = sorted(cat['id'] for cat in cats)  # 排序的类别ID列表
+        self.id_to_idx = {id_: idx for idx, id_ in enumerate(self.class_ids)}  # 类别ID到索引的映射
+        self.idx_to_id = {idx: id_ for idx, id_ in enumerate(self.class_ids)}  # 索引到类别ID的映射
         self.class_id_to_name = {cat['id']: cat['name'] for cat in cats}
         self.class_name_to_id = {v: k for k, v in self.class_id_to_name.items()}
 
@@ -76,11 +79,12 @@ class CustomCocoDataset(CocoDetection):
             width = obj['bbox'][2]
             height = obj['bbox'][3]
             boxes.append([xmin, ymin, xmin + width, ymin + height])
-            labels.append(obj['category_id'])
+            # 将category_id映射为索引
+            labels.append(self.id_to_idx[obj['category_id']])
             area.append(obj['area'])
             iscrowd.append(obj.get('iscrowd', 0))
         target['boxes'] = torch.as_tensor(boxes, dtype=torch.float32)
-        target['class_labels'] = torch.as_tensor(labels, dtype=torch.int64)  # 已修改键名
+        target['class_labels'] = torch.as_tensor(labels, dtype=torch.int64)
         target['image_id'] = torch.tensor([idx])
         target['area'] = torch.as_tensor(area, dtype=torch.float32)
         target['iscrowd'] = torch.as_tensor(iscrowd, dtype=torch.int64)
@@ -89,7 +93,6 @@ class CustomCocoDataset(CocoDetection):
         classification_label = torch.mode(target['class_labels'])[0]
 
         return img, target, classification_label
-
 
 
 def main():
@@ -103,9 +106,9 @@ def main():
 
     annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_Train_fixed.json"
     img_width, img_height = 1111, 667
-    batch_size = 4  # 减小batch_size以适应多任务训练的显存需求
+    batch_size = 8
     epochs = 30
-    learning_rate = 1e-5
+    learning_rate = 1e-4
     model_save_path = r"D:\Programming\Project\github\KonColle\KC\Models\detr_multitask_model.pth"
 
     # ==================== 数据预处理和加载 ====================
@@ -126,6 +129,10 @@ def main():
     train_dataset = CustomCocoDataset(dataset_paths_root, annotation_file, transform=train_transforms)
     val_dataset = CustomCocoDataset(dataset_paths_root, annotation_file, transform=val_transforms)
 
+    print("类别ID到索引的映射：", train_dataset.id_to_idx)
+    print("类别索引到名称的映射：",
+          {idx: train_dataset.class_id_to_name[id_] for idx, id_ in train_dataset.idx_to_id.items()})
+
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, collate_fn=custom_collate_fn
     )
@@ -144,7 +151,7 @@ def main():
     )
 
     # 添加图像分类的全连接层
-    num_classes = len(train_dataset.class_id_to_name) + 1  # 加1表示背景类
+    num_classes = len(train_dataset.class_ids)  # 不再加1，因为类别索引已从0开始连续
     model.classification_head = nn.Linear(config.hidden_size, num_classes)
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -154,8 +161,36 @@ def main():
     # ==================== 定义损失函数和优化器 ====================
     detection_criterion = nn.CrossEntropyLoss()
     classification_criterion = nn.CrossEntropyLoss()
+    # # 冻结 ResNet Backbone 的参数
+    # for param in model.model.backbone.conv_encoder.model.parameters():
+    #     param.requires_grad = False
+    #
+    # # 冻结 Transformer 编码器的前 N 层
+    # N = 3  # 根据需要调整
+    # for i in range(N):
+    #     for param in model.model.encoder.layers[i].parameters():
+    #         param.requires_grad = False
+    #
+    # # 冻结位置编码（如果需要）
+    # for param in model.model.position_embedding.parameters():
+    #     param.requires_grad = False
+    #
+    # for param in model.model.query_position_embeddings.parameters():
+    #     param.requires_grad = False
+    #
+    # #确保预测头和自定义分类头的参数参与训练
+    # for param in model.class_labels_classifier.parameters():
+    #     param.requires_grad = True
+    #
+    # for param in model.bbox_predictor.parameters():
+    #     param.requires_grad = True
+    #
+    # for param in model.classification_head.parameters():
+    #     param.requires_grad = True
+
+    # 更新优化器的参数组
     optimizer = AdamW(model.parameters(), lr=learning_rate)
-    scheduler = ReduceLROnPlateau(optimizer, mode='min', patience=3)
+    scheduler = CosineAnnealingLR(optimizer, T_max=epochs)
     scaler = GradScaler("cuda")
 
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -185,6 +220,11 @@ def main():
                 detection_targets = [{k: v.to(device) for k, v in t.items()} for t in detection_targets]
                 classification_targets = classification_targets.to(device)
 
+                # 在训练循环中，添加打印语句
+                if batch_idx % 10 == 0:  # 每隔10个批次打印一次
+                    print(f"真实标签: {classification_targets.cpu().numpy()}")
+                    print(f"预测标签: {preds.cpu().numpy()}")
+
                 optimizer.zero_grad()
                 with torch.set_grad_enabled(phase == "train"):
                     with autocast(device_type=device.type):
@@ -201,8 +241,11 @@ def main():
                         # 计算检测损失
                         detection_loss = outputs.loss
 
-                        # 总损失（可以根据需要调整权重）
-                        total_loss = classification_loss + detection_loss
+                        # 总损失
+                        classification_loss_weight = 2.0  # 试着增大分类损失权重
+                        detection_loss_weight = 0.5  # 试着减小检测损失权重
+                        total_loss = (classification_loss_weight * classification_loss +
+                                      detection_loss_weight * detection_loss)
 
                     if phase == "train":
                         scaler.scale(total_loss).backward()
