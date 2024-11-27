@@ -1,4 +1,3 @@
-# 导入必要的库
 import os
 import torch
 import torch.nn as nn
@@ -8,7 +7,7 @@ from torchvision.transforms import transforms
 from torchvision.datasets import CocoDetection
 from torch.optim import AdamW
 from torch.optim.lr_scheduler import ReduceLROnPlateau
-from torch.cuda.amp import autocast, GradScaler  # 注意，这里是 torch.cuda.amp
+from torch.cuda.amp import autocast, GradScaler
 from tqdm import tqdm
 import copy
 from collections import Counter
@@ -20,12 +19,12 @@ import json
 
 # 添加 YOLOv8 的导入
 from ultralytics import YOLO
+from ultralytics.utils.loss import v8DetectionLoss
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 
 # ==================== 自定义函数 ====================
-
 
 def get_class_distribution(dataset):
     class_counts = Counter()
@@ -33,14 +32,12 @@ def get_class_distribution(dataset):
         class_counts[int(classification_label)] += 1
     return class_counts
 
-
 def custom_collate_fn(batch):
     images = [item[0] for item in batch]
     detection_targets = [item[1] for item in batch]
     classification_targets = [item[2] for item in batch]
     classification_targets = torch.tensor(classification_targets)
     return images, detection_targets, classification_targets
-
 
 def get_category_image_paths(base_dir):
     category_image_paths = {}
@@ -60,7 +57,6 @@ def get_category_image_paths(base_dir):
             print(f"类别 '{os.path.relpath(root, base_dir)}' 中没有找到图片文件。")
     return category_image_paths
 
-
 def split_dataset(category_image_paths, test_size=0.2, random_state=42):
     train_images = []
     val_images = []
@@ -74,7 +70,6 @@ def split_dataset(category_image_paths, test_size=0.2, random_state=42):
         train_images.extend(train_imgs)
         val_images.extend(val_imgs)
     return train_images, val_images
-
 
 def filter_coco_annotations(annotation_file, image_files, output_file):
     with open(annotation_file, 'r') as f:
@@ -111,7 +106,6 @@ def filter_coco_annotations(annotation_file, image_files, output_file):
 
 # 新增函数：将边界框从 [xmin, ymin, xmax, ymax] 转换为 [x_center, y_center, width, height]
 
-
 def xyxy2xywh(boxes):
     x_center = (boxes[:, 0] + boxes[:, 2]) / 2
     y_center = (boxes[:, 1] + boxes[:, 3]) / 2
@@ -120,7 +114,6 @@ def xyxy2xywh(boxes):
     return torch.stack([x_center, y_center, width, height], dim=1)
 
 # ==================== 自定义数据集类 ====================
-
 
 class CustomCocoDataset(CocoDetection):
     def __init__(self, root, annotation_file, transform=None, image_files=None):
@@ -185,8 +178,7 @@ class CustomCocoDataset(CocoDetection):
         classification_label = self.class_name_to_id[category_name]
         return img, target, classification_label
 
-# 新增自定义模型类，将分类头添加到 YOLOv8 模型上
-
+# 修改后的自定义模型类，将分类头添加到 YOLOv8 模型上
 
 class YOLOv8WithClassification(nn.Module):
     def __init__(self, yolo_model, num_classes):
@@ -198,6 +190,9 @@ class YOLOv8WithClassification(nn.Module):
 
         # 注册前向钩子以获取特征
         self._register_hook()
+
+        # 初始化 v8DetectionLoss
+        self.loss_func = v8DetectionLoss(self.model)
 
     def _register_hook(self):
         # 注册一个前向钩子，在指定层捕获特征
@@ -211,55 +206,37 @@ class YOLOv8WithClassification(nn.Module):
         # 每次前向传播前重置特征
         self.features = None
 
+        # 前向传播
+        predictions = self.model(x)
+
+        # 获取中间特征
+        features = self.features
+        if features is None:
+            raise ValueError("未能捕获特征，请检查前向钩子的设置。")
+
+        # 分类任务
+        gap = torch.mean(features, dim=(2, 3))  # 全局平均池化
+        if self.classification_head is None:
+            # 初始化分类头
+            feature_dim = gap.shape[1]
+            self.classification_head = nn.Linear(
+                feature_dim, self.num_classes).to(x.device)
+        classification_logits = self.classification_head(gap)
+
         if self.training:
-            # 训练模式，传入 targets 计算检测损失
-            outputs = self.model(x, targets)
-            detection_loss = outputs['loss']
-
-            # 获取中间特征
-            features = self.features
-            if features is None:
-                raise ValueError("未能捕获特征，请检查前向钩子的设置。")
-
-            # 分类任务
-            gap = torch.mean(features, dim=(2, 3))  # 全局平均池化
-            if self.classification_head is None:
-                # 初始化分类头
-                feature_dim = gap.shape[1]
-                self.classification_head = nn.Linear(
-                    feature_dim, self.num_classes).to(x.device)
-            classification_logits = self.classification_head(gap)
-
+            # 计算检测损失
+            detection_loss, _ = self.loss_func(predictions, {'batch_idx': targets['batch_idx'], 'cls': targets['cls'], 'bboxes': targets['bboxes']})
             return classification_logits, detection_loss
         else:
-            # 推理模式
-            outputs = self.model(x)
-
-            # 获取中间特征
-            features = self.features
-            if features is None:
-                raise ValueError("未能捕获特征，请检查前向钩子的设置。")
-
-            # 分类任务
-            gap = torch.mean(features, dim=(2, 3))  # 全局平均池化
-            if self.classification_head is None:
-                # 初始化分类头
-                feature_dim = gap.shape[1]
-                self.classification_head = nn.Linear(
-                    feature_dim, self.num_classes).to(x.device)
-            classification_logits = self.classification_head(gap)
-
-            return classification_logits, outputs
-
+            return classification_logits, predictions
 
 # ==================== 主函数 ====================
-
 
 def main():
     # ==================== 参数配置 ====================
     base_dir = r"D:\Programming\Project\github\KonColle\Datasets\images"
     annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_Train_fixed.json"
-    img_width, img_height = 1111, 667
+    img_width, img_height = 640, 640  # YOLOv8 默认输入尺寸
     batch_size = 8
     epochs = 30
     learning_rate = 1e-4
@@ -304,7 +281,8 @@ def main():
     train_annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_train.json"
     val_annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_val.json"
 
-    filter_coco_annotations(annotation_file, train_images, train_annotation_file)
+    filter_coco_annotations(
+        annotation_file, train_images, train_annotation_file)
     filter_coco_annotations(annotation_file, val_images, val_annotation_file)
 
     # 创建训练集和验证集的数据集对象
@@ -350,7 +328,8 @@ def main():
     classification_criterion = nn.CrossEntropyLoss()
 
     optimizer = AdamW(model.parameters(), lr=learning_rate)
-    scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3)
+    scheduler = ReduceLROnPlateau(
+        optimizer, mode='min', factor=0.1, patience=3)
     scaler = torch.amp.GradScaler()
 
     best_model_wts = copy.deepcopy(model.state_dict())
@@ -381,35 +360,41 @@ def main():
                 images = torch.stack([img.to(device) for img in images])
                 classification_targets = classification_targets.to(device)
 
-                # 将目标转换为 YOLOv8 所需的格式
-                yolov8_targets = []
+                # 准备检测目标
+                target_list = []
                 for i, target in enumerate(detection_targets):
                     boxes = target['boxes']  # [n,4]
                     labels = target['class_labels']  # [n]
-                    boxes_xywh = xyxy2xywh(boxes)
+
                     # 规范化坐标
-                    boxes_xywh[:, 0] /= img_width
-                    boxes_xywh[:, 1] /= img_height
-                    boxes_xywh[:, 2] /= img_width
-                    boxes_xywh[:, 3] /= img_height
-                    # 拼接 image_index、class、boxes
-                    image_index = torch.full(
-                        (boxes_xywh.size(0), 1), i, dtype=torch.float32)
+                    boxes[:, 0] /= img_width
+                    boxes[:, 1] /= img_height
+                    boxes[:, 2] /= img_width
+                    boxes[:, 3] /= img_height
+
+                    batch_idx_tensor = torch.full((len(labels), 1), i, dtype=torch.float32)
                     labels = labels.unsqueeze(1).float()
-                    targets_per_image = torch.cat(
-                        [image_index, labels, boxes_xywh], dim=1)  # [n,6]
-                    yolov8_targets.append(targets_per_image)
-                # 合并所有图片的目标
-                if yolov8_targets:
-                    yolov8_targets = torch.cat(yolov8_targets, dim=0)
+                    targets_per_image = torch.cat([batch_idx_tensor, labels, boxes], dim=1)  # [n,6]
+                    target_list.append(targets_per_image)
+
+                if target_list:
+                    targets = torch.cat(target_list, dim=0).to(device)
+                    batch_targets = {
+                        'batch_idx': targets[:, 0].long(),
+                        'cls': targets[:, 1].long(),
+                        'bboxes': targets[:, 2:6]
+                    }
                 else:
-                    yolov8_targets = torch.empty((0, 6)).to(device)
+                    batch_targets = {
+                        'batch_idx': torch.tensor([], dtype=torch.int64).to(device),
+                        'cls': torch.tensor([], dtype=torch.int64).to(device),
+                        'bboxes': torch.tensor([], dtype=torch.float32).to(device)
+                    }
 
                 optimizer.zero_grad()
                 with torch.set_grad_enabled(phase == "train"):
-                    with torch.autocast(device_type=device.type):
-                        outputs = model(images, yolov8_targets)
-
+                    with torch.autocast(device_type=device.type, dtype=torch.float16):
+                        outputs = model(images, targets=batch_targets)
                         classification_logits, detection_loss = outputs
 
                         # 计算分类损失
@@ -417,10 +402,7 @@ def main():
                             classification_logits, classification_targets)
 
                         # 总损失
-                        classification_loss_weight = 1.0
-                        detection_loss_weight = 1.0
-                        total_loss = (classification_loss_weight * classification_loss +
-                                      detection_loss_weight * detection_loss)
+                        total_loss = classification_loss + detection_loss
 
                 if phase == "train":
                     scaler.scale(total_loss).backward()
@@ -456,7 +438,8 @@ def main():
 
             # 计算阶段损失和准确率
             epoch_loss = running_loss / len(dataloader.dataset)
-            epoch_cls_loss = running_classification_loss / len(dataloader.dataset)
+            epoch_cls_loss = running_classification_loss / \
+                len(dataloader.dataset)
             epoch_det_loss = running_detection_loss / len(dataloader.dataset)
             epoch_accuracy = running_corrects.double() / len(dataloader.dataset)
 
@@ -470,7 +453,8 @@ def main():
                 writer.add_scalar('Loss/Train_Total', epoch_loss, epoch)
                 writer.add_scalar(
                     'Loss/Train_Classification', epoch_cls_loss, epoch)
-                writer.add_scalar('Loss/Train_Detection', epoch_det_loss, epoch)
+                writer.add_scalar(
+                    'Loss/Train_Detection', epoch_det_loss, epoch)
                 writer.add_scalar('Accuracy/Train', epoch_accuracy, epoch)
             else:
                 writer.add_scalar('Loss/Val_Total', epoch_loss, epoch)
@@ -496,7 +480,6 @@ def main():
     print(f"最终模型已保存至: {model_save_path}")
 
     writer.close()
-
 
 if __name__ == "__main__":
     main()
