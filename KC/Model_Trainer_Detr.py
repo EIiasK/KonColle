@@ -172,7 +172,7 @@ def main():
     base_dir = r"D:\Programming\Project\github\KonColle\Datasets\images"
     annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_Train_fixed.json"
     img_width, img_height = 1111, 667
-    batch_size = 16
+    batch_size = 8
     epochs = 30
     learning_rate = 1e-4
     model_save_path = r"D:\Programming\Project\github\KonColle\KC\Models\detr_multitask_model.pth"
