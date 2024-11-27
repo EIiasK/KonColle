@@ -40,6 +40,6 @@ def extract_single_image_coco(input_coco_file, output_coco_file):
 
 
 # 示例用法
-input_coco_path = r"D:\Programming\Project\github\KonColle\Datasets\Applier\example\main_menu\main_menu.json"  # 替换为你的COCO文件路径
-output_coco_path = r"D:\Programming\Project\github\KonColle\Datasets\Applier\example\main_menu\main_menu_standard.json"  # 输出路径
+input_coco_path = r"D:\Programming\Project\github\KonColle\Datasets\Applier\example\waters\in_map\navigation\navigation.json"  # 替换为你的COCO文件路径
+output_coco_path = r"D:\Programming\Project\github\KonColle\Datasets\Applier\example\waters\in_map\navigation\navigation_standard.json"  # 输出路径
 extract_single_image_coco(input_coco_path, output_coco_path)

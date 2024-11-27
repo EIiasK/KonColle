@@ -69,10 +69,10 @@ def generate_coco_labels(image_dir, base_coco_file, output_coco_file):
 # 示例用法
 if __name__ == "__main__":
     # 输入图片文件夹路径
-    image_directory = r"D:\Programming\Project\github\KonColle\Datasets\Applier\example\main_menu"
+    image_directory = r"D:\Programming\Project\github\KonColle\Datasets\Applier\example\waters\in_map\advance_on"
     # 基准 COCO 标签文件路径
-    base_coco_label_file = r"D:\Programming\Project\github\KonColle\Datasets\Applier\example\main_menu\main_menu_standard.json"
+    base_coco_label_file = r"D:\Programming\Project\github\KonColle\Datasets\Applier\example\waters\in_map\advance_on\advance_on_standard.json"
     # 输出新的 COCO 标签文件路径
-    output_coco_label_file = r"D:\Programming\Project\github\KonColle\Datasets\Applier\output\main_menu\main_menu.json"
+    output_coco_label_file = r"D:\Programming\Project\github\KonColle\Datasets\Applier\output\waters\in_map\advance_on\advance_on.json"
 
     generate_coco_labels(image_directory, base_coco_label_file, output_coco_label_file)
