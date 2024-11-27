@@ -223,13 +223,20 @@ class YOLOv8WithClassification(nn.Module):
                 feature_dim, self.num_classes).to(x.device)
         classification_logits = self.classification_head(gap)
 
-        if self.training:
-            # 计算检测损失
+        if targets is not None:
+            # 始终计算 detection_loss，无论训练还是验证阶段
             detection_loss, _ = self.loss_func(predictions, {'batch_idx': targets['batch_idx'], 'cls': targets['cls'], 'bboxes': targets['bboxes']})
             return classification_logits, detection_loss
         else:
+            # 如果没有提供 targets，则只返回 logits 和 predictions
             return classification_logits, predictions
 
+
+# 定义支持属性访问的字典类
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
 # ==================== 主函数 ====================
 
 def main():
@@ -316,14 +323,51 @@ def main():
     # 加载预训练的 YOLOv8 模型
     yolov8_model = YOLO('yolov8n.pt')
 
+    # 移动模型到目标设备
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    yolov8_model.model.to(device)
+
+    # 定义默认的超参数
+    default_hyp = {
+        'box': 7.5,
+        'cls': 0.5,
+        'dfl': 1.5,
+        'pose': 12.0,
+        'kobj': 1.0,
+        'overlap_mask': True,
+        'mask_ratio': 4.0,
+    }
+
+    # 更新 model.args 并确保其支持属性访问
+    if not hasattr(yolov8_model.model, 'args') or yolov8_model.model.args is None:
+        yolov8_model.model.args = {}
+    yolov8_model.model.args.update(default_hyp)
+
+    # 将 model.args 转换为支持属性访问的对象
+    class AttrDict(dict):
+        def __init__(self, *args, **kwargs):
+            super(AttrDict, self).__init__(*args, **kwargs)
+            self.__dict__ = self
+
+    if not isinstance(yolov8_model.model.args, AttrDict):
+        yolov8_model.model.args = AttrDict(yolov8_model.model.args)
+
+    # 检查超参数
+    print("模型超参数：", yolov8_model.model.args)
+
     # 创建包含分类头的自定义模型
     num_classes = len(train_dataset.class_name_to_id)
     model = YOLOv8WithClassification(yolov8_model, num_classes)
 
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model.to(device)
-    print("模型加载成功")
+    # 确保所有参数需要梯度
+    for param in model.parameters():
+        param.requires_grad = True
 
+    # 打印模型参数的 requires_grad 状态
+    for name, param in model.named_parameters():
+        print(f"Parameter {name} requires grad: {param.requires_grad}")
+
+    print("模型加载成功")
     # ==================== 定义损失函数和优化器 ====================
     classification_criterion = nn.CrossEntropyLoss()
 
@@ -331,6 +375,11 @@ def main():
     scheduler = ReduceLROnPlateau(
         optimizer, mode='min', factor=0.1, patience=3)
     scaler = torch.amp.GradScaler()
+
+    # 打印优化器的参数组信息
+    print("优化器参数组：")
+    for param_group in optimizer.param_groups:
+        print(f"参数数量：{len(param_group['params'])}")
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_loss = float("inf")
@@ -341,6 +390,7 @@ def main():
         print("-" * 10)
 
         for phase in ["train", "val"]:
+            print(f"Current phase: {phase}")
             if phase == "train":
                 model.train()
                 dataloader = train_loader
@@ -372,9 +422,11 @@ def main():
                     boxes[:, 2] /= img_width
                     boxes[:, 3] /= img_height
 
-                    batch_idx_tensor = torch.full((len(labels), 1), i, dtype=torch.float32)
+                    batch_idx_tensor = torch.full(
+                        (len(labels), 1), i, dtype=torch.float32)
                     labels = labels.unsqueeze(1).float()
-                    targets_per_image = torch.cat([batch_idx_tensor, labels, boxes], dim=1)  # [n,6]
+                    targets_per_image = torch.cat(
+                        [batch_idx_tensor, labels, boxes], dim=1)  # [n,6]
                     target_list.append(targets_per_image)
 
                 if target_list:
@@ -404,10 +456,19 @@ def main():
                         # 总损失
                         total_loss = classification_loss + detection_loss
 
-                if phase == "train":
-                    scaler.scale(total_loss).backward()
-                    scaler.step(optimizer)
-                    scaler.update()
+                    # **打印损失值**
+                    print(
+                        f"Total Loss: {total_loss.item()}, Classification Loss: {classification_loss.item()}, Detection Loss: {detection_loss.item()}")
+
+                    if phase == "train":
+                        print("开始反向传播")
+                        scaler.scale(total_loss).backward()
+                        print("反向传播完成")
+                        scaler.step(optimizer)
+                        scaler.update()
+                    else:
+                        # 验证阶段不需要调用 scaler
+                        pass
 
                 # 更新累计损失
                 batch_size_current = images.size(0)
@@ -453,8 +514,7 @@ def main():
                 writer.add_scalar('Loss/Train_Total', epoch_loss, epoch)
                 writer.add_scalar(
                     'Loss/Train_Classification', epoch_cls_loss, epoch)
-                writer.add_scalar(
-                    'Loss/Train_Detection', epoch_det_loss, epoch)
+                writer.add_scalar('Loss/Train_Detection', epoch_det_loss, epoch)
                 writer.add_scalar('Accuracy/Train', epoch_accuracy, epoch)
             else:
                 writer.add_scalar('Loss/Val_Total', epoch_loss, epoch)
