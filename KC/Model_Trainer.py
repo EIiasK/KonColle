@@ -3,6 +3,7 @@ import os
 import torch
 import torch.nn as nn
 from torch.utils.data import DataLoader
+from torch.utils.tensorboard import SummaryWriter
 from transformers import DetrForObjectDetection, AutoConfig, logging
 from torchvision.transforms import transforms
 from torchvision.datasets import CocoDetection
@@ -24,18 +25,6 @@ os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
 logging.set_verbosity_error()
 
 # ==================== 自定义函数 ====================
-# 损失计算函数
-class FocalLoss(nn.Module):
-    def __init__(self, alpha=1, gamma=2):
-        super(FocalLoss, self).__init__()
-        self.alpha = alpha
-        self.gamma = gamma
-
-    def forward(self, inputs, targets):
-        BCE_loss = nn.functional.cross_entropy(inputs, targets, reduction='none')
-        pt = torch.exp(-BCE_loss)
-        F_loss = self.alpha * (1 - pt) ** self.gamma * BCE_loss
-        return torch.mean(F_loss)
 
 
 def get_class_distribution(dataset):
@@ -171,7 +160,9 @@ class CustomCocoDataset(CocoDetection):
         img_file_name = img_info['file_name']
         category_name = os.path.dirname(img_file_name)
         classification_label = self.class_name_to_id[category_name]
-
+        # print(f"图像文件名: {img_file_name}")
+        # print(f"分类标签: {classification_label}")
+        # print(f"检测标注: {target}")
         return img, target, classification_label
 
 # ==================== 主函数 ====================
@@ -185,6 +176,9 @@ def main():
     epochs = 30
     learning_rate = 1e-4
     model_save_path = r"D:\Programming\Project\github\KonColle\KC\Models\detr_multitask_model.pth"
+    log_dir = r"D:\Programming\Project\github\KonColle\KC\Logs"
+    # 创建 TensorBoard 的 SummaryWriter
+    writer = SummaryWriter(log_dir=log_dir)
 
     # ==================== 数据预处理和加载 ====================
     train_transforms = transforms.Compose([
@@ -276,6 +270,10 @@ def main():
     best_model_wts = copy.deepcopy(model.state_dict())
     best_loss = float("inf")
 
+    # 在主函数中，定义SummaryWriter
+    writer = SummaryWriter(log_dir=log_dir)
+
+    # 训练和验证循环
     for epoch in range(epochs):
         print(f"Epoch {epoch + 1}/{epochs}")
         print("-" * 10)
@@ -315,17 +313,17 @@ def main():
 
                         # 计算检测损失
                         detection_loss = outputs.loss
-
+                        scaled_detection_loss = torch.log(detection_loss + 1)
                         # 总损失
-                        classification_loss_weight = 2.0
-                        detection_loss_weight = 0.5
+                        classification_loss_weight = 5.0
+                        detection_loss_weight = 0.1
                         total_loss = (classification_loss_weight * classification_loss +
-                                      detection_loss_weight * detection_loss)
+                                      detection_loss_weight * scaled_detection_loss)
 
-                    if phase == "train":
-                        scaler.scale(total_loss).backward()
-                        scaler.step(optimizer)
-                        scaler.update()
+                if phase == "train":
+                    scaler.scale(total_loss).backward()
+                    scaler.step(optimizer)
+                    scaler.update()
 
                 # 更新累计损失
                 batch_size_current = images.size(0)
@@ -362,9 +360,21 @@ def main():
             print(f"{phase} Detection Loss: {epoch_det_loss:.4f}")
             print(f"{phase} Accuracy: {epoch_accuracy:.4f}")
 
+            # 将损失和准确率记录到 TensorBoard
+            if phase == "train":
+                writer.add_scalar('Loss/Train_Total', epoch_loss, epoch)
+                writer.add_scalar('Loss/Train_Classification', epoch_cls_loss, epoch)
+                writer.add_scalar('Loss/Train_Detection', epoch_det_loss, epoch)
+                writer.add_scalar('Accuracy/Train', epoch_accuracy, epoch)
+            else:
+                writer.add_scalar('Loss/Val_Total', epoch_loss, epoch)
+                writer.add_scalar('Loss/Val_Classification', epoch_cls_loss, epoch)
+                writer.add_scalar('Loss/Val_Detection', epoch_det_loss, epoch)
+                writer.add_scalar('Accuracy/Val', epoch_accuracy, epoch)
+
             # 学习率调整
             if phase == "val":
-                scheduler.step(epoch_cls_loss)
+                scheduler.step(epoch_cls_loss)  # 监控分类损失
 
             # 保存最佳模型
             if phase == "val" and epoch_loss < best_loss:
@@ -377,6 +387,8 @@ def main():
     model.load_state_dict(best_model_wts)
     torch.save(model.state_dict(), model_save_path)
     print(f"最终模型已保存至: {model_save_path}")
+
+    writer.close()
 
 if __name__ == "__main__":
     main()
