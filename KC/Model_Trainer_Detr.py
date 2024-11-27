@@ -172,7 +172,7 @@ def main():
     base_dir = r"D:\Programming\Project\github\KonColle\Datasets\images"
     annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_Train_fixed.json"
     img_width, img_height = 1111, 667
-    batch_size = 8
+    batch_size = 16
     epochs = 30
     learning_rate = 1e-4
     model_save_path = r"D:\Programming\Project\github\KonColle\KC\Models\detr_multitask_model.pth"
@@ -337,7 +337,7 @@ def main():
                 running_total += batch_size_current
 
                 # 每隔10个批次打印一次预测结果
-                if batch_idx % 10 == 0:
+                if batch_idx % 20 == 0:
                     print(f"真实标签: {classification_targets.cpu().numpy()}")
                     print(f"预测标签: {preds.cpu().numpy()}")
 
