@@ -16,13 +16,18 @@ from torchvision.ops import box_iou
 from pycocotools.coco import COCO
 from sklearn.model_selection import train_test_split
 import json
-
-# 添加 YOLOv8 的导入
+from collections import OrderedDict
 from ultralytics import YOLO
 from ultralytics.utils.loss import v8DetectionLoss
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
+# 定义支持属性访问的字典类
+class AttrDict(dict):
+    def __init__(self, *args, **kwargs):
+        super(AttrDict, self).__init__(*args, **kwargs)
+        self.__dict__ = self
 
 # ==================== 自定义函数 ====================
 
@@ -39,6 +44,22 @@ def custom_collate_fn(batch):
     classification_targets = torch.tensor(classification_targets)
     return images, detection_targets, classification_targets
 
+# 从 COCO 标注文件中提取检测类别名称，并分配类别 ID。
+def extract_detection_classes(annotation_file):
+    with open(annotation_file, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    categories = data.get('categories', [])
+    categories = sorted(categories, key=lambda x: x['id'])
+
+    detection_class_id_to_name = OrderedDict()
+
+    for idx, category in enumerate(categories):
+        class_id = idx  # 分配从0开始的类别ID
+        class_name = category['name']
+        detection_class_id_to_name[class_id] = class_name
+
+    return detection_class_id_to_name
 def get_category_image_paths(base_dir):
     category_image_paths = {}
 
@@ -46,16 +67,18 @@ def get_category_image_paths(base_dir):
         # 检查当前目录下是否存在图片文件
         image_files = [f for f in files if f.lower().endswith(
             ('.png', '.jpg', '.jpeg', '.bmp', '.gif'))]
+        relative_path = os.path.relpath(root, base_dir)
+        category = os.path.basename(relative_path)
+
         if image_files:
-            # 计算相对于 base_dir 的相对路径作为类别名称
-            category = os.path.relpath(root, base_dir)
             # 构建图片文件的相对路径列表
-            image_paths = [os.path.join(category, f) for f in image_files]
+            image_paths = [os.path.join(relative_path, f) for f in image_files]
             category_image_paths[category] = image_paths
             print(f"类别 '{category}' 的图片数量：{len(image_paths)}")
         else:
-            print(f"类别 '{os.path.relpath(root, base_dir)}' 中没有找到图片文件。")
+            print(f"类别 '{category}' 中没有找到图片文件。")
     return category_image_paths
+
 
 def split_dataset(category_image_paths, test_size=0.2, random_state=42):
     train_images = []
@@ -116,33 +139,22 @@ def xyxy2xywh(boxes):
 # ==================== 自定义数据集类 ====================
 
 class CustomCocoDataset(CocoDetection):
-    def __init__(self, root, annotation_file, transform=None, image_files=None):
+    def __init__(self, root, annotation_file, transform=None, image_files=None, class_name_to_id=None):
         super().__init__(root=root, annFile=annotation_file)
         self.transform = transform
 
-        # 获取所有类别的名称和ID，用于图像分类标签
-        category_names = [d for d in self.get_all_categories(root)]
-        self.class_name_to_id = {name: idx for idx,
-                                 name in enumerate(sorted(category_names))}
-        self.class_id_to_name = {idx: name for name,
-                                 idx in self.class_name_to_id.items()}
+        if class_name_to_id is not None:
+            self.class_name_to_id = class_name_to_id  # 分类类别映射
+            self.class_id_to_name = {idx: name for name, idx in class_name_to_id.items()}
+        else:
+            raise ValueError("必须提供 class_name_to_id 映射。")
 
         # 如果提供了 image_files，过滤 self.ids
         if image_files is not None:
-            filename_to_id = {
-                img_info['file_name']: img_id for img_id, img_info in self.coco.imgs.items()}
-            self.ids = [filename_to_id[fname]
-                        for fname in image_files if fname in filename_to_id]
-
-    def get_all_categories(self, root):
-        categories = set()
-        for root_dir, dirs, files in os.walk(root):
-            image_files = [f for f in files if f.lower().endswith(
-                ('.png', '.jpg', '.jpeg', '.bmp', '.gif'))]
-            if image_files:
-                category = os.path.relpath(root_dir, root)
-                categories.add(category)
-        return categories
+            filename_to_id = {img_info['file_name']: img_id for img_id, img_info in self.coco.imgs.items()}
+            self.ids = [filename_to_id[fname] for fname in image_files if fname in filename_to_id]
+        else:
+            self.ids = list(self.coco.imgs.keys())
 
     def __getitem__(self, idx):
         img, ann = super().__getitem__(idx)
@@ -150,7 +162,6 @@ class CustomCocoDataset(CocoDetection):
             img = self.transform(img)
 
         # 获取目标检测标签
-        target = {}
         boxes = []
         labels = []
         area = []
@@ -161,32 +172,62 @@ class CustomCocoDataset(CocoDetection):
             width = obj['bbox'][2]
             height = obj['bbox'][3]
             boxes.append([xmin, ymin, xmin + width, ymin + height])
-            labels.append(obj['category_id'])  # 使用原始的 category_id
+            labels.append(obj['category_id'] - 1)  # 类别 ID 从1转为从0
             area.append(obj['area'])
             iscrowd.append(obj.get('iscrowd', 0))
-        target['boxes'] = torch.as_tensor(boxes, dtype=torch.float32)
-        target['class_labels'] = torch.as_tensor(
-            labels, dtype=torch.int64)  # 修改键名
+
+        target = {}
+        target['bboxes'] = torch.as_tensor(boxes, dtype=torch.float32)
+        target['cls'] = torch.as_tensor(labels, dtype=torch.int64)
         target['image_id'] = torch.tensor([self.ids[idx]])
         target['area'] = torch.as_tensor(area, dtype=torch.float32)
         target['iscrowd'] = torch.as_tensor(iscrowd, dtype=torch.int64)
 
-        # 获取图像分类标签（基于文件夹名）
+        # 获取图像分类标签（基于类别名称）
         img_info = self.coco.imgs[self.ids[idx]]
         img_file_name = img_info['file_name']
-        category_name = os.path.dirname(img_file_name)
-        classification_label = self.class_name_to_id[category_name]
+        category_name = os.path.basename(os.path.dirname(img_file_name))
+        try:
+            classification_label = self.class_name_to_id[category_name]
+        except KeyError:
+            print(f"类别名称 '{category_name}' 未在 class_name_to_id 中找到！")
+            raise
+        classification_label = torch.tensor(classification_label, dtype=torch.long)
         return img, target, classification_label
 
-# 修改后的自定义模型类，将分类头添加到 YOLOv8 模型上
 
+# 修改后的自定义模型类，将分类头添加到 YOLOv8 模型上
 class YOLOv8WithClassification(nn.Module):
-    def __init__(self, yolo_model, num_classes):
+    def __init__(self, yolo_model, num_classes, class_id_to_name, detection_class_names):
         super(YOLOv8WithClassification, self).__init__()
-        self.model = yolo_model.model  # 这是底层的 nn.Module
+        self.model = yolo_model.model  # YOLOv8 的底层 nn.Module
         self.num_classes = num_classes
+        self.class_id_to_name = class_id_to_name  # 分类类别名称映射
+        self.detection_class_names = detection_class_names  # 检测类别名称列表
         self.classification_head = None  # 分类头将在第一次前向传播时初始化
         self.features = None  # 用于存储中间特征
+
+        # 转换 args 为 AttrDict 或手动定义
+        if hasattr(self.model, 'args') and isinstance(self.model.args, dict):
+            self.model.args = AttrDict(self.model.args)
+        else:
+            print("模型缺少 'args' 属性或 'args' 不是一个字典。手动定义 'args'。")
+            # 手动定义 args，这里需要根据 v8DetectionLoss 的需求添加必要的超参数
+            self.model.args = AttrDict({
+                'box': 7.5,    # 边界框损失权重
+                'cls': 0.5,    # 分类损失权重
+                'obj': 1.0,    # 目标性损失权重
+                'iou': 0.20,   # IOU 阈值
+                'lr0': 0.01,    # 初始学习率
+                'lrf': 0.01,    # 学习率最终值
+                # 根据需要添加更多超参数
+            })
+
+        # 确保 args 中包含 'box' 属性
+        if not hasattr(self.model.args, 'box'):
+            self.model.args.box = 7.5  # 默认值，可根据需要调整
+
+        print(f"模型超参数 args: {self.model.args}")  # 调试信息
 
         # 注册前向钩子以获取特征
         self._register_hook()
@@ -194,13 +235,16 @@ class YOLOv8WithClassification(nn.Module):
         # 初始化 v8DetectionLoss
         self.loss_func = v8DetectionLoss(self.model)
 
+    def hook(self, module, input, output):
+        self.features = output
+
     def _register_hook(self):
         # 注册一个前向钩子，在指定层捕获特征
         # 假设我们在检测头之前的层（即 self.model.model[-2]）捕获特征
-        def hook(module, input, output):
-            self.features = output
-
-        self.model.model[-2].register_forward_hook(hook)
+        if len(self.model.model) >= 2:
+            self.model.model[-2].register_forward_hook(self.hook)
+        else:
+            print("模型结构不符合预期，无法注册钩子。")
 
     def forward(self, x, targets=None):
         # 每次前向传播前重置特征
@@ -225,30 +269,33 @@ class YOLOv8WithClassification(nn.Module):
 
         if targets is not None:
             # 始终计算 detection_loss，无论训练还是验证阶段
-            detection_loss, _ = self.loss_func(predictions, {'batch_idx': targets['batch_idx'], 'cls': targets['cls'], 'bboxes': targets['bboxes']})
+            detection_loss, _ = self.loss_func(predictions, {
+                'batch_idx': targets['batch_idx'],
+                'cls': targets['cls'],
+                'bboxes': targets['bboxes']
+            })
             return classification_logits, detection_loss
         else:
             # 如果没有提供 targets，则只返回 logits 和 predictions
             return classification_logits, predictions
 
 
-# 定义支持属性访问的字典类
-class AttrDict(dict):
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
+
+
+
 # ==================== 主函数 ====================
 
 def main():
     # ==================== 参数配置 ====================
     base_dir = r"D:\Programming\Project\github\KonColle\Datasets\images"
     annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_Train_fixed.json"
-    img_width, img_height = 640, 640  # YOLOv8 默认输入尺寸
+    img_width, img_height = 1120, 672  # YOLOv8 默认输入尺寸
     batch_size = 8
     epochs = 30
     learning_rate = 1e-4
-    model_save_path = r"D:\Programming\Project\github\KonColle\KC\Models\yolov8_multitask_model.pth"
+    model_save_path = r"D:\Programming\Project\github\KonColle\KC\Models\yolov8_KC_model.pt"
     log_dir = r"D:\Programming\Project\github\KonColle\KC\Logs"
+
     # 创建 TensorBoard 的 SummaryWriter
     writer = SummaryWriter(log_dir=log_dir)
 
@@ -258,18 +305,17 @@ def main():
         transforms.RandomHorizontalFlip(),
         transforms.RandomVerticalFlip(),
         transforms.RandomRotation(15),
-        transforms.ColorJitter(
-            brightness=0.3, contrast=0.3, saturation=0.3),
+        transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
-                             0.229, 0.224, 0.225])
+            0.229, 0.224, 0.225])
     ])
 
     val_transforms = transforms.Compose([
         transforms.Resize((img_height, img_width)),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[
-                             0.229, 0.224, 0.225])
+            0.229, 0.224, 0.225])
     ])
 
     # 获取每个类别的图片列表
@@ -292,17 +338,36 @@ def main():
         annotation_file, train_images, train_annotation_file)
     filter_coco_annotations(annotation_file, val_images, val_annotation_file)
 
-    # 创建训练集和验证集的数据集对象
+    # ==================== 提取检测类别 ====================
+    detection_class_id_to_name = extract_detection_classes(train_annotation_file)
+    num_detection_classes = len(detection_class_id_to_name)
+    detection_class_names = list(detection_class_id_to_name.values())
+    print(f"提取的检测类别数量: {num_detection_classes}")
+    print(f"detection_class_names: {detection_class_names}")
+
+    # ==================== 提取分类类别 ====================
+    classification_class_names = sorted(category_image_paths.keys())
+    classification_class_name_to_id = {name: idx for idx, name in enumerate(classification_class_names)}
+    classification_class_id_to_name = {idx: name for name, idx in classification_class_name_to_id.items()}
+    print(f"分类类别名称到ID的映射: {classification_class_name_to_id}")
+
+    # ==================== 创建数据集 ====================
     train_dataset = CustomCocoDataset(
-        base_dir, train_annotation_file, transform=train_transforms,
-        image_files=train_images
+        root=base_dir,
+        annotation_file=train_annotation_file,
+        transform=train_transforms,
+        image_files=train_images,
+        class_name_to_id=classification_class_name_to_id  # 使用分类类别映射
     )
     val_dataset = CustomCocoDataset(
-        base_dir, val_annotation_file, transform=val_transforms,
-        image_files=val_images
+        root=base_dir,
+        annotation_file=val_annotation_file,
+        transform=val_transforms,
+        image_files=val_images,
+        class_name_to_id=classification_class_name_to_id
     )
 
-    # 创建数据加载器
+    # ==================== 创建数据加载器 ====================
     train_loader = DataLoader(
         train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, collate_fn=custom_collate_fn
     )
@@ -321,10 +386,18 @@ def main():
 
     # ==================== 构建模型 ====================
     # 加载预训练的 YOLOv8 模型
-    yolov8_model = YOLO('yolov8n.pt')
+    yolov8_model_path = r'D:\Programming\Project\github\KonColle\KC\Models\YOLOv8\yolov8n.pt'
+    yolov8_model = YOLO(yolov8_model_path)
 
-    # 移动模型到目标设备
+    # 更新 YOLOv8 模型的类别配置
+    yolov8_model.model.yaml['nc'] = num_detection_classes
+    yolov8_model.model.yaml['names'] = detection_class_names
+
+    # ==================== 定义设备 ====================
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"使用设备: {device}")
+
+    # 将模型移动到目标设备
     yolov8_model.model.to(device)
 
     # 定义默认的超参数
@@ -344,30 +417,31 @@ def main():
     yolov8_model.model.args.update(default_hyp)
 
     # 将 model.args 转换为支持属性访问的对象
-    class AttrDict(dict):
-        def __init__(self, *args, **kwargs):
-            super(AttrDict, self).__init__(*args, **kwargs)
-            self.__dict__ = self
-
     if not isinstance(yolov8_model.model.args, AttrDict):
         yolov8_model.model.args = AttrDict(yolov8_model.model.args)
 
-    # 检查超参数
-    print("模型超参数：", yolov8_model.model.args)
+    # # 检查超参数
+    # print("模型超参数：", yolov8_model.model.args)
 
     # 创建包含分类头的自定义模型
-    num_classes = len(train_dataset.class_name_to_id)
-    model = YOLOv8WithClassification(yolov8_model, num_classes)
+    num_classes = len(classification_class_name_to_id)
+    model = YOLOv8WithClassification(
+        yolo_model=yolov8_model,
+        num_classes=num_classes,
+        class_id_to_name=classification_class_id_to_name,
+        detection_class_names=detection_class_names
+    )
 
     # 确保所有参数需要梯度
     for param in model.parameters():
         param.requires_grad = True
 
-    # 打印模型参数的 requires_grad 状态
-    for name, param in model.named_parameters():
-        print(f"Parameter {name} requires grad: {param.requires_grad}")
+    print(f"类别数量 (num_classes): {num_classes}")
+    print(f"分类类别ID到名称的映射 (class_id_to_name): {train_dataset.class_id_to_name}")
+    print(f"检测类别名称 (detection_class_names): {model.detection_class_names}")
 
     print("模型加载成功")
+
     # ==================== 定义损失函数和优化器 ====================
     classification_criterion = nn.CrossEntropyLoss()
 
@@ -376,21 +450,20 @@ def main():
         optimizer, mode='min', factor=0.1, patience=3)
     scaler = torch.amp.GradScaler()
 
-    # 打印优化器的参数组信息
-    print("优化器参数组：")
-    for param_group in optimizer.param_groups:
-        print(f"参数数量：{len(param_group['params'])}")
+    # # 打印优化器的参数组信息
+    # print("优化器参数组：")
+    # for param_group in optimizer.param_groups:
+    #     print(f"参数数量：{len(param_group['params'])}")
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_loss = float("inf")
 
-    # 训练和验证循环
+    # ==================== 训练和验证循环 ====================
     for epoch in range(epochs):
         print(f"Epoch {epoch + 1}/{epochs}")
         print("-" * 10)
 
         for phase in ["train", "val"]:
-            print(f"Current phase: {phase}")
             if phase == "train":
                 model.train()
                 dataloader = train_loader
@@ -413,8 +486,12 @@ def main():
                 # 准备检测目标
                 target_list = []
                 for i, target in enumerate(detection_targets):
-                    boxes = target['boxes']  # [n,4]
-                    labels = target['class_labels']  # [n]
+                    if 'cls' not in target:
+                        print(f"Target {i} 缺少 'cls' 键！")
+                        continue  # 或者根据需求决定是否跳过或抛出异常
+
+                    boxes = target['bboxes'].to(device)  # [n,4]
+                    labels = target['cls'].to(device)  # 使用 'cls'
 
                     # 规范化坐标
                     boxes[:, 0] /= img_width
@@ -423,8 +500,8 @@ def main():
                     boxes[:, 3] /= img_height
 
                     batch_idx_tensor = torch.full(
-                        (len(labels), 1), i, dtype=torch.float32)
-                    labels = labels.unsqueeze(1).float()
+                        (labels.size(0), 1), i, dtype=torch.long).to(device)
+                    labels = labels.unsqueeze(1)
                     targets_per_image = torch.cat(
                         [batch_idx_tensor, labels, boxes], dim=1)  # [n,6]
                     target_list.append(targets_per_image)
@@ -438,8 +515,8 @@ def main():
                     }
                 else:
                     batch_targets = {
-                        'batch_idx': torch.tensor([], dtype=torch.int64).to(device),
-                        'cls': torch.tensor([], dtype=torch.int64).to(device),
+                        'batch_idx': torch.tensor([], dtype=torch.long).to(device),
+                        'cls': torch.tensor([], dtype=torch.long).to(device),
                         'bboxes': torch.tensor([], dtype=torch.float32).to(device)
                     }
 
@@ -456,14 +533,8 @@ def main():
                         # 总损失
                         total_loss = classification_loss + detection_loss
 
-                    # **打印损失值**
-                    print(
-                        f"Total Loss: {total_loss.item()}, Classification Loss: {classification_loss.item()}, Detection Loss: {detection_loss.item()}")
-
                     if phase == "train":
-                        print("开始反向传播")
                         scaler.scale(total_loss).backward()
-                        print("反向传播完成")
                         scaler.step(optimizer)
                         scaler.update()
                     else:
@@ -473,10 +544,8 @@ def main():
                 # 更新累计损失
                 batch_size_current = images.size(0)
                 running_loss += total_loss.item() * batch_size_current
-                running_classification_loss += classification_loss.item(
-                ) * batch_size_current
-                running_detection_loss += detection_loss.item(
-                ) * batch_size_current
+                running_classification_loss += classification_loss.item() * batch_size_current
+                running_detection_loss += detection_loss.item() * batch_size_current
 
                 # 计算分类准确率
                 _, preds = torch.max(classification_logits, 1)
@@ -499,8 +568,7 @@ def main():
 
             # 计算阶段损失和准确率
             epoch_loss = running_loss / len(dataloader.dataset)
-            epoch_cls_loss = running_classification_loss / \
-                len(dataloader.dataset)
+            epoch_cls_loss = running_classification_loss / len(dataloader.dataset)
             epoch_det_loss = running_detection_loss / len(dataloader.dataset)
             epoch_accuracy = running_corrects.double() / len(dataloader.dataset)
 
@@ -531,15 +599,26 @@ def main():
             if phase == "val" and epoch_loss < best_loss:
                 best_loss = epoch_loss
                 best_model_wts = copy.deepcopy(model.state_dict())
-                torch.save(model.state_dict(), model_save_path)
-                print(f"最佳模型已保存至: {model_save_path}")
+                torch.save({
+                    'model_state_dict': model.state_dict(),
+                    'class_id_to_name': model.class_id_to_name,
+                    'detection_class_names': model.detection_class_names
+                }, model_save_path.replace('.pth', '.pt'))
+                print(f"最佳模型已保存至: {model_save_path.replace('.pth', '.pt')}")
 
     print("训练完成")
+    # 加载最佳模型权重
     model.load_state_dict(best_model_wts)
-    torch.save(model.state_dict(), model_save_path)
-    print(f"最终模型已保存至: {model_save_path}")
+    torch.save({
+        'model_state_dict': model.state_dict(),
+        'class_id_to_name': model.class_id_to_name,
+        'detection_class_names': model.detection_class_names
+    }, model_save_path.replace('.pth', '.pt'))
+    print(f"最终模型已保存至: {model_save_path.replace('.pth', '.pt')}")
 
     writer.close()
+
+
 
 if __name__ == "__main__":
     main()
