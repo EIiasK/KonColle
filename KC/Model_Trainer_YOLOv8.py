@@ -166,6 +166,7 @@ class CustomCocoDataset(CocoDetection):
         labels = []
         area = []
         iscrowd = []
+        checkboxes = []  # 新增checkbox列表
         for obj in ann:
             xmin = obj['bbox'][0]
             ymin = obj['bbox'][1]
@@ -175,10 +176,12 @@ class CustomCocoDataset(CocoDetection):
             labels.append(obj['category_id'] - 1)  # 类别 ID 从1转为从0
             area.append(obj['area'])
             iscrowd.append(obj.get('iscrowd', 0))
+            checkboxes.append(float(obj.get('checkbox', 0)))  # 获取'checkbox'属性，默认为0.0
 
         target = {}
         target['bboxes'] = torch.as_tensor(boxes, dtype=torch.float32)
         target['cls'] = torch.as_tensor(labels, dtype=torch.int64)
+        target['checkboxes'] = torch.as_tensor(checkboxes, dtype=torch.float32)  # 添加'checkboxes'
         target['image_id'] = torch.tensor([self.ids[idx]])
         target['area'] = torch.as_tensor(area, dtype=torch.float32)
         target['iscrowd'] = torch.as_tensor(iscrowd, dtype=torch.int64)
@@ -196,6 +199,8 @@ class CustomCocoDataset(CocoDetection):
         return img, target, classification_label
 
 
+
+
 # 修改后的自定义模型类，将分类头添加到 YOLOv8 模型上
 class YOLOv8WithClassification(nn.Module):
     def __init__(self, yolo_model, num_classes, class_id_to_name, detection_class_names):
@@ -205,6 +210,7 @@ class YOLOv8WithClassification(nn.Module):
         self.class_id_to_name = class_id_to_name  # 分类类别名称映射
         self.detection_class_names = detection_class_names  # 检测类别名称列表
         self.classification_head = None  # 分类头将在第一次前向传播时初始化
+        self.checkbox_head = None  # 新增checkbox head
         self.features = None  # 用于存储中间特征
 
         # 转换 args 为 AttrDict 或手动定义
@@ -267,6 +273,14 @@ class YOLOv8WithClassification(nn.Module):
                 feature_dim, self.num_classes).to(x.device)
         classification_logits = self.classification_head(gap)
 
+        # Checkbox 任务
+        if self.checkbox_head is None:
+            # 初始化 checkbox head
+            feature_dim = gap.shape[1]
+            self.checkbox_head = nn.Linear(
+                feature_dim, 1).to(x.device)  # Binary classification
+        checkbox_logits = self.checkbox_head(gap).squeeze(1)  # [batch_size]
+
         if targets is not None:
             # 始终计算 detection_loss，无论训练还是验证阶段
             detection_loss, _ = self.loss_func(predictions, {
@@ -274,10 +288,23 @@ class YOLOv8WithClassification(nn.Module):
                 'cls': targets['cls'],
                 'bboxes': targets['bboxes']
             })
-            return classification_logits, detection_loss
+
+            # 直接访问 'checkboxes'
+            checkbox_targets = targets['checkboxes']
+
+            # 计算 checkbox 损失
+            checkbox_loss = nn.BCEWithLogitsLoss()(checkbox_logits, checkbox_targets)
+
+            # 总损失
+            total_loss = detection_loss + checkbox_loss
+
+            return classification_logits, detection_loss, checkbox_loss, total_loss
         else:
             # 如果没有提供 targets，则只返回 logits 和 predictions
-            return classification_logits, predictions
+            return classification_logits, checkbox_logits, predictions
+
+
+
 
 
 
@@ -444,6 +471,7 @@ def main():
 
     # ==================== 定义损失函数和优化器 ====================
     classification_criterion = nn.CrossEntropyLoss()
+    checkbox_criterion = nn.BCEWithLogitsLoss()  # 新增 checkbox 损失函数
 
     optimizer = AdamW(model.parameters(), lr=learning_rate)
     scheduler = ReduceLROnPlateau(
@@ -473,6 +501,7 @@ def main():
 
             running_loss = 0.0
             running_classification_loss = 0.0
+            running_checkbox_loss = 0.0  # 新增
             running_detection_loss = 0.0
             running_corrects = 0
             running_total = 0
@@ -483,8 +512,9 @@ def main():
                 images = torch.stack([img.to(device) for img in images])
                 classification_targets = classification_targets.to(device)
 
-                # 准备检测目标
+                # 准备检测目标和 checkbox 目标
                 target_list = []
+                checkbox_list = []
                 for i, target in enumerate(detection_targets):
                     if 'cls' not in target:
                         print(f"Target {i} 缺少 'cls' 键！")
@@ -506,45 +536,59 @@ def main():
                         [batch_idx_tensor, labels, boxes], dim=1)  # [n,6]
                     target_list.append(targets_per_image)
 
+                    # 提取 checkbox 目标
+                    if 'checkboxes' in target and target['checkboxes'].numel() > 0:
+                        # 计算每个图像的 checkbox 平均值，作为图像级的 checkbox 标签
+                        checkbox = target['checkboxes'].mean()
+                    else:
+                        # 如果没有 checkbox，默认0.0
+                        checkbox = torch.tensor(0.0).to(device)
+                    checkbox_list.append(checkbox)
+
                 if target_list:
                     targets = torch.cat(target_list, dim=0).to(device)
+                    checkbox_targets = torch.stack(checkbox_list).to(device)
                     batch_targets = {
                         'batch_idx': targets[:, 0].long(),
                         'cls': targets[:, 1].long(),
-                        'bboxes': targets[:, 2:6]
+                        'bboxes': targets[:, 2:6],
+                        'checkboxes': checkbox_targets  # 添加 'checkboxes'
                     }
                 else:
                     batch_targets = {
                         'batch_idx': torch.tensor([], dtype=torch.long).to(device),
                         'cls': torch.tensor([], dtype=torch.long).to(device),
-                        'bboxes': torch.tensor([], dtype=torch.float32).to(device)
+                        'bboxes': torch.tensor([], dtype=torch.float32).to(device),
+                        'checkboxes': torch.tensor([], dtype=torch.float32).to(device)  # 添加 'checkboxes'
                     }
 
                 optimizer.zero_grad()
                 with torch.set_grad_enabled(phase == "train"):
                     with torch.autocast(device_type=device.type, dtype=torch.float16):
-                        outputs = model(images, targets=batch_targets)
-                        classification_logits, detection_loss = outputs
+                        outputs = model(images, batch_targets)
+                        classification_logits, detection_loss, checkbox_loss, total_loss = outputs
 
                         # 计算分类损失
                         classification_loss = classification_criterion(
                             classification_logits, classification_targets)
 
-                        # 总损失
-                        total_loss = classification_loss + detection_loss
+                        # 总损失已经在模型中计算
+                        # 如果需要调整总损失，可以在这里进行
+                        # total_loss = detection_loss + checkbox_loss + classification_loss
 
-                    if phase == "train":
-                        scaler.scale(total_loss).backward()
-                        scaler.step(optimizer)
-                        scaler.update()
-                    else:
-                        # 验证阶段不需要调用 scaler
-                        pass
+                if phase == "train":
+                    scaler.scale(total_loss).backward()
+                    scaler.step(optimizer)
+                    scaler.update()
+                else:
+                    # 验证阶段不需要调用 scaler
+                    pass
 
                 # 更新累计损失
                 batch_size_current = images.size(0)
                 running_loss += total_loss.item() * batch_size_current
                 running_classification_loss += classification_loss.item() * batch_size_current
+                running_checkbox_loss += checkbox_loss.item() * batch_size_current  # 新增
                 running_detection_loss += detection_loss.item() * batch_size_current
 
                 # 计算分类准确率
@@ -562,6 +606,7 @@ def main():
                 progress_bar.set_postfix({
                     "Total Loss": f"{running_loss / running_total:.4f}",
                     "Cls Loss": f"{running_classification_loss / running_total:.4f}",
+                    "Checkbox Loss": f"{running_checkbox_loss / running_total:.4f}",  # 新增
                     "Det Loss": f"{running_detection_loss / running_total:.4f}",
                     "Acc": f"{(running_corrects.double() / running_total).item():.4f}"
                 })
@@ -569,11 +614,13 @@ def main():
             # 计算阶段损失和准确率
             epoch_loss = running_loss / len(dataloader.dataset)
             epoch_cls_loss = running_classification_loss / len(dataloader.dataset)
+            epoch_checkbox_loss = running_checkbox_loss / len(dataloader.dataset)  # 新增
             epoch_det_loss = running_detection_loss / len(dataloader.dataset)
             epoch_accuracy = running_corrects.double() / len(dataloader.dataset)
 
             print(f"{phase} Total Loss: {epoch_loss:.4f}")
             print(f"{phase} Classification Loss: {epoch_cls_loss:.4f}")
+            print(f"{phase} Checkbox Loss: {epoch_checkbox_loss:.4f}")  # 新增
             print(f"{phase} Detection Loss: {epoch_det_loss:.4f}")
             print(f"{phase} Accuracy: {epoch_accuracy:.4f}")
 
@@ -582,12 +629,14 @@ def main():
                 writer.add_scalar('Loss/Train_Total', epoch_loss, epoch)
                 writer.add_scalar(
                     'Loss/Train_Classification', epoch_cls_loss, epoch)
+                writer.add_scalar('Loss/Train_Checkbox', epoch_checkbox_loss, epoch)  # 新增
                 writer.add_scalar('Loss/Train_Detection', epoch_det_loss, epoch)
                 writer.add_scalar('Accuracy/Train', epoch_accuracy, epoch)
             else:
                 writer.add_scalar('Loss/Val_Total', epoch_loss, epoch)
                 writer.add_scalar(
                     'Loss/Val_Classification', epoch_cls_loss, epoch)
+                writer.add_scalar('Loss/Val_Checkbox', epoch_checkbox_loss, epoch)  # 新增
                 writer.add_scalar('Loss/Val_Detection', epoch_det_loss, epoch)
                 writer.add_scalar('Accuracy/Val', epoch_accuracy, epoch)
 
@@ -605,6 +654,9 @@ def main():
                     'detection_class_names': model.detection_class_names
                 }, model_save_path.replace('.pth', '.pt'))
                 print(f"最佳模型已保存至: {model_save_path.replace('.pth', '.pt')}")
+                # 可选：打印保存的类别信息
+                print("保存的检测类别名称：", model.detection_class_names)
+                print("保存的分类类别名称：", model.class_id_to_name)
 
     print("训练完成")
     # 加载最佳模型权重
@@ -615,8 +667,8 @@ def main():
         'detection_class_names': model.detection_class_names
     }, model_save_path.replace('.pth', '.pt'))
     print(f"最终模型已保存至: {model_save_path.replace('.pth', '.pt')}")
-
     writer.close()
+
 
 
 
