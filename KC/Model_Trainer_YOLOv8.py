@@ -199,8 +199,6 @@ class CustomCocoDataset(CocoDetection):
         return img, target, classification_label
 
 
-
-
 # 修改后的自定义模型类，将分类头添加到 YOLOv8 模型上
 class YOLOv8WithClassification(nn.Module):
     def __init__(self, yolo_model, num_classes, class_id_to_name, detection_class_names):
@@ -447,9 +445,6 @@ def main():
     if not isinstance(yolov8_model.model.args, AttrDict):
         yolov8_model.model.args = AttrDict(yolov8_model.model.args)
 
-    # # 检查超参数
-    # print("模型超参数：", yolov8_model.model.args)
-
     # 创建包含分类头的自定义模型
     num_classes = len(classification_class_name_to_id)
     model = YOLOv8WithClassification(
@@ -477,11 +472,6 @@ def main():
     scheduler = ReduceLROnPlateau(
         optimizer, mode='min', factor=0.1, patience=3)
     scaler = torch.amp.GradScaler()
-
-    # # 打印优化器的参数组信息
-    # print("优化器参数组：")
-    # for param_group in optimizer.param_groups:
-    #     print(f"参数数量：{len(param_group['params'])}")
 
     best_model_wts = copy.deepcopy(model.state_dict())
     best_loss = float("inf")
@@ -573,8 +563,8 @@ def main():
                             classification_logits, classification_targets)
 
                         # 总损失已经在模型中计算
-                        # 如果需要调整总损失，可以在这里进行
-                        # total_loss = detection_loss + checkbox_loss + classification_loss
+                        # 调整总损失
+                        total_loss += classification_loss
 
                 if phase == "train":
                     scaler.scale(total_loss).backward()
@@ -650,6 +640,7 @@ def main():
                 best_model_wts = copy.deepcopy(model.state_dict())
                 torch.save({
                     'model_state_dict': model.state_dict(),
+                    'checkbox_head': model.checkbox_head.state_dict(),
                     'class_id_to_name': model.class_id_to_name,
                     'detection_class_names': model.detection_class_names
                 }, model_save_path.replace('.pth', '.pt'))
@@ -663,12 +654,12 @@ def main():
     model.load_state_dict(best_model_wts)
     torch.save({
         'model_state_dict': model.state_dict(),
+        'checkbox_head': model.checkbox_head.state_dict(),
         'class_id_to_name': model.class_id_to_name,
         'detection_class_names': model.detection_class_names
     }, model_save_path.replace('.pth', '.pt'))
     print(f"最终模型已保存至: {model_save_path.replace('.pth', '.pt')}")
     writer.close()
-
 
 
 
