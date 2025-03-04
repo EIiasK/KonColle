@@ -4,81 +4,8 @@ from torch import nn
 from torchvision import transforms as T
 from PIL import Image
 from ultralytics.utils.loss import v8DetectionLoss
+from Model_Trainer_YOLOv8 import AttrDict, YOLOv8WithClassification
 
-class AttrDict(dict):
-    def __init__(self, *args, **kwargs):
-        super(AttrDict, self).__init__(*args, **kwargs)
-        self.__dict__ = self
-
-class YOLOv8WithClassification(nn.Module):
-    def __init__(self, yolo_model, num_classes, class_id_to_name, detection_class_names):
-        super(YOLOv8WithClassification, self).__init__()
-        self.model = yolo_model.model  # YOLOv8 的底层 nn.Module
-        self.num_classes = num_classes
-        self.class_id_to_name = class_id_to_name  # 分类类别名称映射
-        self.detection_class_names = detection_class_names  # 检测类别名称列表
-        self.classification_head = None  # 分类头将在第一次前向传播时初始化
-        self.checkbox_head = None  # 新增 checkbox head
-        self.features = None  # 用于存储中间特征
-
-        if hasattr(self.model, 'args') and isinstance(self.model.args, dict):
-            self.model.args = AttrDict(self.model.args)
-        else:
-            print("模型缺少 'args' 属性或 'args' 不是一个字典。手动定义 'args'。")
-            self.model.args = AttrDict({
-                'box': 7.5,
-                'cls': 0.5,
-                'obj': 1.0,
-                'iou': 0.20,
-                'lr0': 0.01,
-                'lrf': 0.01,
-            })
-
-        if not hasattr(self.model.args, 'box'):
-            self.model.args.box = 7.5
-
-        self._register_hook()
-        self.loss_func = v8DetectionLoss(self.model)
-
-    def hook(self, module, input, output):
-        self.features = output
-
-    def _register_hook(self):
-        if len(self.model.model) >= 2:
-            self.model.model[-2].register_forward_hook(self.hook)
-        else:
-            print("模型结构不符合预期，无法注册钩子。")
-
-    def forward(self, x, targets=None):
-        self.features = None
-        predictions = self.model(x)
-        features = self.features
-        if features is None:
-            raise ValueError("未能捕获特征，请检查前向钩子的设置。")
-
-        gap = torch.mean(features, dim=(2, 3))
-        if self.classification_head is None:
-            feature_dim = gap.shape[1]
-            self.classification_head = nn.Linear(feature_dim, self.num_classes).to(x.device)
-        classification_logits = self.classification_head(gap)
-
-        if self.checkbox_head is None:
-            feature_dim = gap.shape[1]
-            self.checkbox_head = nn.Linear(feature_dim, 1).to(x.device)
-        checkbox_logits = self.checkbox_head(gap).squeeze(1)
-
-        if targets is not None:
-            detection_loss, _ = self.loss_func(predictions, {
-                'batch_idx': targets['batch_idx'],
-                'cls': targets['cls'],
-                'bboxes': targets['bboxes']
-            })
-            checkbox_targets = targets['checkboxes']
-            checkbox_loss = nn.BCEWithLogitsLoss()(checkbox_logits, checkbox_targets)
-            total_loss = detection_loss + checkbox_loss
-            return classification_logits, detection_loss, checkbox_loss, total_loss
-        else:
-            return classification_logits, checkbox_logits, predictions
 
 # 修改后的检验程序，直接加载训练保存的模型实例
 model_path = r'D:\Programming\Project\github\KonColle\KC\Models\yolov8_KC_model.pt'
