@@ -639,8 +639,8 @@ def main():
                 best_loss = epoch_loss
                 best_model_wts = copy.deepcopy(model.state_dict())
                 torch.save({
-                    'model_state_dict': model.state_dict(),
-                    'checkbox_head': model.checkbox_head.state_dict(),
+                    'model': model,
+                    'checkbox_head': model.checkbox_head,
                     'class_id_to_name': model.class_id_to_name,
                     'detection_class_names': model.detection_class_names
                 }, model_save_path.replace('.pth', '.pt'))
@@ -653,8 +653,8 @@ def main():
     # 加载最佳模型权重
     model.load_state_dict(best_model_wts)
     torch.save({
-        'model_state_dict': model.state_dict(),
-        'checkbox_head': model.checkbox_head.state_dict(),
+        'model': model,
+        'checkbox_head': model.checkbox_head,
         'class_id_to_name': model.class_id_to_name,
         'detection_class_names': model.detection_class_names
     }, model_save_path.replace('.pth', '.pt'))
