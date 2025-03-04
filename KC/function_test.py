@@ -1,6 +1,4 @@
 import torch
-import cv2
-import numpy as np
 from matplotlib import pyplot as plt
 from torch import nn
 from torchvision import transforms as T
@@ -20,7 +18,7 @@ class YOLOv8WithClassification(nn.Module):
         self.class_id_to_name = class_id_to_name  # 分类类别名称映射
         self.detection_class_names = detection_class_names  # 检测类别名称列表
         self.classification_head = None  # 分类头将在第一次前向传播时初始化
-        self.checkbox_head = None  # 新增checkbox head
+        self.checkbox_head = None  # 新增 checkbox head
         self.features = None  # 用于存储中间特征
 
         if hasattr(self.model, 'args') and isinstance(self.model.args, dict):
@@ -40,7 +38,6 @@ class YOLOv8WithClassification(nn.Module):
             self.model.args.box = 7.5
 
         self._register_hook()
-
         self.loss_func = v8DetectionLoss(self.model)
 
     def hook(self, module, input, output):
@@ -83,41 +80,27 @@ class YOLOv8WithClassification(nn.Module):
         else:
             return classification_logits, checkbox_logits, predictions
 
-# 加载模型
+# 修改后的检验程序，直接加载训练保存的模型实例
 model_path = r'D:\Programming\Project\github\KonColle\KC\Models\yolov8_KC_model.pt'
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
-# 加载模型权重
+# 直接加载整个模型实例，训练时已保存了完整的模型（含分类头、checkbox head及类别信息）
 checkpoint = torch.load(model_path, map_location=device)
-
-# 从 checkpoint 中直接获取模型，'model' 键已经包含了整个模型实例
 model = checkpoint['model']
-
-# 提取其他信息
-class_id_to_name = checkpoint['class_id_to_name']
-detection_class_names = checkpoint['detection_class_names']
-
-# 重新创建 YOLOv8WithClassification 实例，传入必要参数
-model = YOLOv8WithClassification(model, num_classes=len(class_id_to_name),
-                                 class_id_to_name=class_id_to_name,
-                                 detection_class_names=detection_class_names)
-
-# 如果你还需要加载 'checkbox_head'，也可以从 checkpoint 中提取
-model.checkbox_head = checkpoint['checkbox_head']
-
-# 将模型移动到设备上
-model = model.to(device)
 model.eval()
+model = model.to(device)
 
+# 使用训练阶段的类别映射信息
+class_id_to_name = model.class_id_to_name
+detection_class_names = model.detection_class_names
 
-# 图像预处理
+# 图像预处理：与训练阶段保持一致的尺寸和归一化参数
 transform = T.Compose([
-    T.Resize((1120, 672)),
+    T.Resize((672, 1120)),  # 与训练阶段一致：(img_height, img_width) = (672, 1120)
     T.ToTensor(),
     T.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
 ])
 
-# 验证函数
 def validate_image(image_path):
     # 加载图像
     image = Image.open(image_path).convert('RGB')
@@ -127,17 +110,13 @@ def validate_image(image_path):
     with torch.no_grad():
         classification_logits, checkbox_logits, predictions = model(image_tensor)
 
-    # predictions 是一个包含边界框的张量，形状通常是 [num_boxes, 6]，
-    # 其中前 4 列是边界框坐标，接下来是置信度和分类概率
-    # 例如：[x1, y1, x2, y2, confidence, class_id]
-    detection_results = predictions[0]  # 这里假设 predictions[0] 是一个 [num_boxes, 6] 的张量
+    # 假设 predictions[0] 为 [num_boxes, 6] 张量，其中前 4 列为边界框
+    detection_results = predictions[0]
+    boxes = detection_results[:, :4]
+    confidences = detection_results[:, 4]
+    class_ids = detection_results[:, 5].long()
 
-    # 获取检测框和类别
-    boxes = detection_results[:, :4]  # 前 4 列是边界框
-    confidences = detection_results[:, 4]  # 第 5 列是置信度
-    class_ids = detection_results[:, 5].long()  # 第 6 列是分类标签
-
-    # 使用 torch.max 获取每个检测框的分类标签
+    # 计算分类结果
     classification_labels = torch.argmax(classification_logits, dim=1)
 
     # 显示检测结果
@@ -145,16 +124,12 @@ def validate_image(image_path):
     ax.imshow(image)
 
     for i, box in enumerate(boxes):
-        # 检查 box 的形状，确保它包含 4 个元素：x1, y1, x2, y2
         if len(box.shape) == 1 and box.shape[0] == 4:
             x1, y1, x2, y2 = box.cpu().numpy()
         else:
             print(f"Unexpected box shape: {box.shape}")
-            continue  # 跳过不符合预期的框
-
-        # 使用 .item() 确保坐标是标量
-        x1, y1, x2, y2 = x1.item(), y1.item(), x2.item(), y2.item()
-
+            continue
+        x1, y1, x2, y2 = float(x1), float(y1), float(x2), float(y2)
         ax.add_patch(plt.Rectangle((x1, y1), x2 - x1, y2 - y1, fill=False, color='red', linewidth=2))
         label = detection_class_names[class_ids[i].item()]
         ax.text(x1, y1, label, color='yellow', fontsize=12, bbox=dict(facecolor='black', alpha=0.5))
@@ -162,13 +137,10 @@ def validate_image(image_path):
     # 输出分类结果
     classification_label = class_id_to_name[classification_labels.item()]
     print(f"分类结果: {classification_label}")
-
     plt.show()
 
-
-
-# 输入图片路径
-image_path = r'D:\Programming\Project\github\KonColle\Datasets\images\waters\in_map\combat_result\combat_result_4.png'
+# 输入图片路径进行检验
+image_path = r'D:\Programming\Project\github\KonColle\Datasets\images\waters\map_1\map_1_1.png'
 validate_image(image_path)
 
 
