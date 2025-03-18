@@ -108,6 +108,9 @@ def main():
         conf_thresh = 0.25  # 置信度阈值
         iou_thresh = 0.45   # NMS IoU 阈值
 
+        # 添加一个标志变量，仅打印一次 raw_preds 的完整结构
+        raw_preds_printed = False
+
         while True:
             sct_img = sct.grab(monitor)
             frame = np.array(sct_img)
@@ -130,6 +133,22 @@ def main():
             # 模型推理
             with torch.no_grad():
                 class_logits, checkbox_logits, raw_preds = model(img_tensor)
+
+                # 调试：仅打印一次 raw_preds 的完整结构
+                if not raw_preds_printed:
+                    raw_preds_printed = True
+                    print("raw_preds 完整结构：")
+                    if isinstance(raw_preds, tuple):
+                        for idx, item in enumerate(raw_preds):
+                            try:
+                                print(f"raw_preds[{idx}] 类型: {type(item)}, 形状: {item.shape}")
+                            except Exception as e:
+                                print(f"raw_preds[{idx}] 类型: {type(item)}, 内容: {item}")
+                    else:
+                        try:
+                            print("raw_preds 类型:", type(raw_preds), "形状:", raw_preds.shape)
+                        except Exception as e:
+                            print("raw_preds 类型:", type(raw_preds), "内容:", raw_preds)
 
             # 处理检测输出，统一得到 boxes, obj_conf, class_conf
             boxes, obj_conf, class_conf = process_raw_preds(raw_preds, device, conf_thresh)
