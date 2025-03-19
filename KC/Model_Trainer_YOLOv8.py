@@ -131,7 +131,7 @@ class CustomCocoDataset(CocoDetection):
         img_info = self.coco.imgs[self.ids[idx]]
         orig_width = img_info['width']
         orig_height = img_info['height']
-        # 构建目标检测标签：将 COCO 的 [xmin, ymin, width, height] 转换为归一化的 (cx,cy,w,h)
+        # 构建目标检测标签（将边界框转换为归一化的 (cx, cy, w, h) 格式）
         boxes = []
         labels = []
         area = []
@@ -139,12 +139,13 @@ class CustomCocoDataset(CocoDetection):
         checkboxes = []
         for obj in ann:
             xmin, ymin, width, height = obj['bbox']
-            x_center = (xmin + width/2.0) / orig_width
-            y_center = (ymin + height/2.0) / orig_height
+            # 计算中心坐标和宽高（归一化到 [0,1]）
+            x_center = (xmin + width / 2.0) / orig_width
+            y_center = (ymin + height / 2.0) / orig_height
             w_norm = width / orig_width
             h_norm = height / orig_height
             boxes.append([x_center, y_center, w_norm, h_norm])
-            labels.append(obj['category_id'] - 1)
+            labels.append(obj['category_id'] - 1)  # 转换为0-based类别ID
             area.append(obj['area'])
             iscrowd.append(obj.get('iscrowd', 0))
             checkboxes.append(float(obj.get('checkbox', 0.0)))
@@ -156,7 +157,7 @@ class CustomCocoDataset(CocoDetection):
             'area': torch.as_tensor(area, dtype=torch.float32),
             'iscrowd': torch.as_tensor(iscrowd, dtype=torch.int64)
         }
-        # 获取图像分类标签（依据文件夹名称）
+        # 获取图像分类标签（根据文件路径推断类别）
         img_file_name = img_info['file_name']
         category_name = os.path.basename(os.path.dirname(img_file_name))
         if category_name not in self.class_name_to_id:
@@ -164,100 +165,90 @@ class CustomCocoDataset(CocoDetection):
         classification_label = torch.tensor(self.class_name_to_id[category_name], dtype=torch.long)
         return img, target, classification_label
 
-# ==================== 自定义模型类 ====================
+# 带分类头的自定义YOLOv8模型
 class YOLOv8WithClassification(nn.Module):
     def __init__(self, yolo_model, num_classes, class_id_to_name, detection_class_names):
         super(YOLOv8WithClassification, self).__init__()
-        self.model = yolo_model.model  # YOLOv8 的底层模型
+        self.model = yolo_model.model  # YOLOv8 底层模型 (nn.Module)
         self.num_classes = num_classes
-        self.class_id_to_name = class_id_to_name
-        self.detection_class_names = detection_class_names
-        self.classification_head = None
-        self.checkbox_head = None
-        self.features = None
+        self.class_id_to_name = class_id_to_name  # 分类类别 ID->名称 映射
+        self.detection_class_names = detection_class_names  # 检测类别名称列表
+        self.classification_head = None  # 分类头 (延迟初始化)
+        self.checkbox_head = None       # checkbox 分类头
+        self.features = None           # 中间特征存储
 
+        # 确保 self.model.args 是 AttrDict，包含所需超参数
         if hasattr(self.model, 'args') and isinstance(self.model.args, dict):
             self.model.args = AttrDict(self.model.args)
         else:
             print("模型缺少 'args' 属性或 'args' 不是字典，使用默认超参数。")
             self.model.args = AttrDict({
-                'box': 7.5,
-                'cls': 0.5,
-                'obj': 1.0,
-                'iou': 0.20,
-                'lr0': 0.01,
-                'lrf': 0.01,
+                'box': 7.5,    # 边界框损失权重
+                'cls': 0.5,    # 检测分类损失权重
+                'obj': 1.0,    # 对象置信度损失权重
+                'iou': 0.20,   # IoU 阈值
+                'lr0': 0.01,   # 初始学习率
+                'lrf': 0.01,   # 最终学习率衰减
+                # 可根据需要添加更多参数
             })
         if not hasattr(self.model.args, 'box'):
             self.model.args.box = 7.5
 
+        # 注册前向钩子，在检测头前一层获取特征
         self._register_hook()
+        # 初始化YOLOv8损失计算模块
         self.loss_func = v8DetectionLoss(self.model)
 
     def hook(self, module, input, output):
+        # 钩子函数：保存中间特征
         self.features = output
 
     def _register_hook(self):
+        # 在模型最后一层之前注册钩子
         if len(self.model.model) >= 2:
             self.model.model[-2].register_forward_hook(self.hook)
         else:
             print("模型结构不符合预期，无法注册钩子。")
 
     def forward(self, x, targets=None):
+        # 前向传播，获取预测和中间特征
         self.features = None
-        predictions = self.model(x)
-        # 打印 predictions 的结构
-        print("predictions 类型:", type(predictions))
-        if isinstance(predictions, (list, tuple)):
-            for i, pred in enumerate(predictions):
-                print(f"predictions[{i}].shape: {pred.shape}")
-        else:
-            print("predictions.shape:", predictions.shape)
-
-        # 如果 Detect 层已经在模型中，则查找它并打印它的输出通道数（no 属性）
-        for m in self.model.modules():
-            if m.__class__.__name__ == "Detect":
-                print("Detect 层的 no 值:", m.no)
-                break
-
-        # 打印通过前向钩子捕获的特征的第一项的第一个维度（通常是 batch size）
-        if self.features is not None:
-            if isinstance(self.features, (list, tuple)):
-                print("self.features[0].shape[0]:", self.features[0].shape[0])
-            else:
-                print("self.features.shape[0]:", self.features.shape[0])
-        else:
-            print("未捕获到中间特征（self.features 为 None）")
-
+        predictions = self.model(x)  # YOLOv8 检测输出
         features = self.features
         if features is None:
             raise ValueError("未捕获中间特征，请检查钩子设置。")
+        # 图像分类任务：全局平均池化 + 全连接获得分类 logits
         gap = torch.mean(features, dim=(2, 3))
         if self.classification_head is None:
             feature_dim = gap.shape[1]
             self.classification_head = nn.Linear(feature_dim, self.num_classes).to(x.device)
         classification_logits = self.classification_head(gap)
+        # checkbox 任务：全局平均池化 + 全连接获得二分类 logits
         if self.checkbox_head is None:
             feature_dim = gap.shape[1]
             self.checkbox_head = nn.Linear(feature_dim, 1).to(x.device)
         checkbox_logits = self.checkbox_head(gap).squeeze(1)
         if targets is not None:
+            # 计算 YOLO 检测损失
             detection_loss, _ = self.loss_func(predictions, {
                 'batch_idx': targets['batch_idx'],
                 'cls': targets['cls'],
                 'bboxes': targets['bboxes']
             })
+            # 计算 checkbox 二分类损失
             checkbox_targets = targets['checkboxes']
             checkbox_loss = nn.BCEWithLogitsLoss()(checkbox_logits, checkbox_targets)
             total_loss = detection_loss + checkbox_loss
             return classification_logits, detection_loss, checkbox_loss, total_loss
         else:
+            # 推理模式：返回分类logits、checkbox logits和检测原始预测
             return classification_logits, checkbox_logits, predictions
 
 def main():
+    # ==================== 参数配置 ====================
     base_dir = r"D:\Programming\Project\github\KonColle\Datasets\images"
     annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_Train_fixed.json"
-    img_width, img_height = 1120, 672
+    img_width, img_height = 1120, 672  # 模型输入图像尺寸
     batch_size = 8
     epochs = 30
     learning_rate = 1e-4
@@ -265,8 +256,14 @@ def main():
     log_dir = r"D:\Programming\Project\github\KonColle\KC\Logs"
 
     writer = SummaryWriter(log_dir=log_dir)
+
+    # ==================== 数据预处理 ====================
     train_transforms = transforms.Compose([
         transforms.Resize((img_height, img_width)),
+        # 移除了随机翻转和旋转，以确保边界框与图像匹配
+        # transforms.RandomHorizontalFlip(),
+        # transforms.RandomVerticalFlip(),
+        # transforms.RandomRotation(15),
         transforms.ColorJitter(brightness=0.3, contrast=0.3, saturation=0.3),
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
@@ -276,16 +273,22 @@ def main():
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
+
+    # 获取各类别图像路径
     category_image_paths = get_category_image_paths(base_dir)
     if not category_image_paths:
         print("未找到任何类别的图片文件，请检查数据集路径。")
         return
+
+    # 划分训练集和验证集
     train_images, val_images = split_dataset(category_image_paths, test_size=0.2, random_state=42)
+    # 生成训练集和验证集对应的COCO标注文件
     train_annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_train.json"
     val_annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_val.json"
     filter_coco_annotations(annotation_file, train_images, train_annotation_file)
     filter_coco_annotations(annotation_file, val_images, val_annotation_file)
 
+    # ==================== 提取类别信息 ====================
     detection_class_id_to_name = extract_detection_classes(train_annotation_file)
     num_detection_classes = len(detection_class_id_to_name)
     detection_class_names = list(detection_class_id_to_name.values())
@@ -296,6 +299,7 @@ def main():
     classification_class_id_to_name = {idx: name for name, idx in classification_class_name_to_id.items()}
     print(f"分类类别名称到ID的映射: {classification_class_name_to_id}")
 
+    # ==================== 创建数据集 ====================
     train_dataset = CustomCocoDataset(
         root=base_dir,
         annotation_file=train_annotation_file,
@@ -311,6 +315,7 @@ def main():
         class_name_to_id=classification_class_name_to_id
     )
 
+    # ==================== 创建数据加载器 ====================
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=4, collate_fn=custom_collate_fn)
     val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False, num_workers=4, collate_fn=custom_collate_fn)
 
@@ -319,40 +324,17 @@ def main():
     print("训练集类别分布:", get_class_distribution(train_dataset))
     print("验证集类别分布:", get_class_distribution(val_dataset))
 
+    # ==================== 构建模型 ====================
     yolov8_model_path = r"D:\Programming\Project\github\KonColle\KC\Models\YOLOv8\yolov8n.pt"
     yolov8_model = YOLO(yolov8_model_path)
     yolov8_model.model.yaml['nc'] = num_detection_classes
     yolov8_model.model.yaml['names'] = detection_class_names
 
-    from ultralytics.nn.modules.head import Detect  # 正确导入 Detect 类
-
-    # 更新 Detect 层：更新 cv2 和 cv3 两个分支，使得输出通道数符合预期
-    for m in yolov8_model.model.modules():
-        if isinstance(m, Detect):
-            m.nc = num_detection_classes  # 设置类别数（14）
-            m.reg_max = 64  # 设置 reg_max（比如设为64）
-            m.no = m.nc + m.reg_max * 4  # 应该等于 14 + 256 = 270
-            new_cv2_out = m.reg_max * 4  # 期望 cv2 分支输出 256 个通道
-            new_cv3_out = m.nc  # 期望 cv3 分支输出 14 个通道
-
-            # 更新 cv2 分支
-            for i, conv_seq in enumerate(m.cv2):
-                in_channels = conv_seq[-1].in_channels
-                conv_seq[-1] = nn.Conv2d(in_channels, new_cv2_out, kernel_size=1, stride=1)
-
-            # 更新 cv3 分支
-            for i, conv_seq in enumerate(m.cv3):
-                in_channels = conv_seq[-1].in_channels
-                conv_seq[-1] = nn.Conv2d(in_channels, new_cv3_out, kernel_size=1, stride=1)
-
-            if hasattr(m, 'initialize_biases'):
-                m.initialize_biases()
-            print("更新后的 Detect 层：", m)
-
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"使用设备: {device}")
     yolov8_model.model.to(device)
 
+    # 更新模型默认超参数
     default_hyp = {
         'box': 7.5,
         'cls': 0.5,
@@ -368,6 +350,7 @@ def main():
     if not isinstance(yolov8_model.model.args, AttrDict):
         yolov8_model.model.args = AttrDict(yolov8_model.model.args)
 
+    # 创建自定义模型（添加分类头）
     num_classes = len(classification_class_name_to_id)
     model = YOLOv8WithClassification(
         yolo_model=yolov8_model,
@@ -375,6 +358,7 @@ def main():
         class_id_to_name=classification_class_id_to_name,
         detection_class_names=detection_class_names
     )
+    # 确保所有参数参与训练
     for param in model.parameters():
         param.requires_grad = True
 
@@ -383,6 +367,7 @@ def main():
     print(f"检测类别名称列表: {model.detection_class_names}")
     print("模型加载并配置完成")
 
+    # ==================== 损失函数和优化器 ====================
     classification_criterion = nn.CrossEntropyLoss()
     checkbox_criterion = nn.BCEWithLogitsLoss()
     optimizer = AdamW(model.parameters(), lr=learning_rate)
@@ -392,6 +377,7 @@ def main():
     best_model_wts = copy.deepcopy(model.state_dict())
     best_loss = float("inf")
 
+    # ==================== 训练和验证 ====================
     for epoch in range(epochs):
         print(f"Epoch {epoch+1}/{epochs}")
         print("-" * 10)
@@ -411,19 +397,23 @@ def main():
             running_total = 0
 
             for images, detection_targets, classification_targets in dataloader:
+                # 将图像堆叠为批次并移动到设备
                 images = torch.stack([img.to(device) for img in images])
                 classification_targets = classification_targets.to(device)
+                # 构建 batch 级别的 detection 和 checkbox targets
                 target_list = []
                 checkbox_list = []
                 for i, target in enumerate(detection_targets):
                     if 'cls' not in target:
                         print(f"警告: 第 {i} 个目标缺少 'cls' 键")
                         continue
-                    boxes = target['bboxes'].to(device)  # [n,4]，已归一化(cx,cy,w,h)
+                    boxes = target['bboxes'].to(device)  # [n,4], 已归一化(cx, cy, w, h)
                     labels = target['cls'].to(device).unsqueeze(1)
+                    # **注意**: 边界框已归一化到 [0,1]，无需再次根据尺寸归一
                     batch_idx_tensor = torch.full((labels.size(0), 1), i, dtype=torch.long, device=device)
-                    targets_per_image = torch.cat([batch_idx_tensor, labels, boxes], dim=1)
+                    targets_per_image = torch.cat([batch_idx_tensor, labels, boxes], dim=1)  # [n,6]
                     target_list.append(targets_per_image)
+                    # 计算每幅图像的 checkbox 标签（取平均值，如果有多个）
                     if 'checkboxes' in target and target['checkboxes'].numel() > 0:
                         checkbox_val = target['checkboxes'].mean().to(device)
                     else:
@@ -451,7 +441,7 @@ def main():
                     with torch.autocast(device.type, dtype=torch.float16):
                         classification_logits, detection_loss, checkbox_loss, total_loss = model(images, batch_targets)
                         classification_loss = classification_criterion(classification_logits, classification_targets)
-                        total_loss += classification_loss
+                        total_loss += classification_loss  # 综合总损失
                     if phase == "train":
                         scaler.scale(total_loss).backward()
                         scaler.step(optimizer)
@@ -466,6 +456,7 @@ def main():
                 running_corrects += torch.sum(preds == classification_targets.data)
                 running_total += batch_size_current
 
+            # 计算平均损失和准确率
             epoch_loss = running_loss / running_total if running_total > 0 else 0.0
             epoch_classification_loss = running_classification_loss / running_total if running_total > 0 else 0.0
             epoch_checkbox_loss = running_checkbox_loss / running_total if running_total > 0 else 0.0
@@ -475,6 +466,7 @@ def main():
             print(f"{phase} Loss: {epoch_loss:.4f} (分类: {epoch_classification_loss:.4f}, "
                   f"Checkbox: {epoch_checkbox_loss:.4f}, 检测: {epoch_detection_loss:.4f}) Acc: {epoch_acc:.4f}")
 
+            # 验证阶段：调整学习率并保存最佳模型
             if phase == "val":
                 scheduler.step(epoch_loss)
                 if epoch_loss < best_loss:
@@ -490,6 +482,7 @@ def main():
                     print("保存的检测类别名称:", model.detection_class_names)
                     print("保存的分类类别名称:", model.class_id_to_name)
     print("训练完成")
+    # 保存最终模型
     model.load_state_dict(best_model_wts)
     torch.save({
         'model': model,
