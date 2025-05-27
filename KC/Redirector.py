@@ -3,7 +3,7 @@ import json
 
 # 路径配置
 image_root_dir = r"D:\Programming\Project\github\KonColle\Datasets\images"
-annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\instances_Train.json"
+annotation_file = r"D:\Programming\Project\github\KonColle\Datasets\annotations\KonColle_coco.json"
 
 # 加载 COCO 标签
 with open(annotation_file, 'r') as f:
