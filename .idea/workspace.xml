@@ -4,9 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3b69ddfd-0191-4e1c-8ba7-edbf8ab409f3" name="Changes" comment="开始新项目">
+    <list default="true" id="3b69ddfd-0191-4e1c-8ba7-edbf8ab409f3" name="Changes" comment="修改完目标检测模型训练器">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/KC/Detection_Model_Trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/KC/Detection_Model_Trainer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/KC/KonColle.py" beforeDir="false" afterPath="$PROJECT_DIR$/KC/KonColle.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,57 +46,57 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "DefaultHtmlFileTemplate": "HTML File",
-    "Node.js.Interface_Capture.js.executor": "Run",
-    "Python.Coco_Copier.executor": "Run",
-    "Python.Coco_Example_get.executor": "Run",
-    "Python.Compare_Component (1).executor": "Run",
-    "Python.Compare_Component.executor": "Run",
-    "Python.Course_design (1).executor": "Run",
-    "Python.Course_design.executor": "Run",
-    "Python.Detection_Model_Trainer (1).executor": "Run",
-    "Python.KonColle.executor": "Run",
-    "Python.Model_Trainer (1).executor": "Run",
-    "Python.Model_Trainer.executor": "Run",
-    "Python.Model_Trainer_YOLOv8.executor": "Run",
-    "Python.Redirector (1).executor": "Run",
-    "Python.Redirector.executor": "Run",
-    "Python.classification_function_test (1).executor": "Run",
-    "Python.function_test (1).executor": "Run",
-    "Python.model_analyze.executor": "Run",
-    "Python.s.executor": "Run",
-    "Python.test (1).executor": "Run",
-    "Python.test.executor": "Run",
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "Individual-function-models-beta-branch",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "D:/Programming/Project/github/KonColle",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.stylelint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.stylelint": "",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "project.structure.last.edited": "Modules",
-    "project.structure.proportion": "0.15",
-    "project.structure.side.proportion": "0.2",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
+    &quot;Node.js.Interface_Capture.js.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Coco_Copier.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Coco_Example_get.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Compare_Component (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.Compare_Component.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Course_design (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.Course_design.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Detection_Model_Trainer (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.KonColle.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Model_Trainer (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.Model_Trainer.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Model_Trainer_YOLOv8.executor&quot;: &quot;Run&quot;,
+    &quot;Python.Redirector (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.Redirector.executor&quot;: &quot;Run&quot;,
+    &quot;Python.classification_function_test (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.function_test (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.model_analyze.executor&quot;: &quot;Run&quot;,
+    &quot;Python.s.executor&quot;: &quot;Run&quot;,
+    &quot;Python.test (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.test.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;Individual-function-models-beta-branch&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;D:/Programming/Project/github/KonColle&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.stylelint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.stylelint&quot;: &quot;&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
+    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Programming\Project\github\KonColle\KC\Game_interact" />
       <recent name="D:\Programming\Project\github\KonColle\KC" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.Detection_Model_Trainer (1)">
+  <component name="RunManager" selected="Python.KonColle">
     <configuration name="Detection_Model_Trainer (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="KonColle" />
       <option name="ENV_FILES" value="" />
@@ -213,14 +214,15 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.Detection_Model_Trainer (1)" />
+        <item itemvalue="Python.KonColle" />
       </list>
     </recent_temporary>
   </component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-python-sdk-d68999036c7f-b11f5e8da5ad-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-233.14475.56" />
+        <option value="bundled-jdk-9823dce3aa75-fdfe4dae3a2d-intellij.indexing.shared.core-IU-243.21565.193" />
+        <option value="bundled-js-predefined-d6986cc7102b-e768b9ed790e-JavaScript-IU-243.21565.193" />
       </set>
     </attachedChunks>
   </component>
@@ -316,15 +318,8 @@
       <workItem from="1747742207207" duration="11000" />
       <workItem from="1748313549162" duration="772000" />
       <workItem from="1748314334024" duration="85000" />
-      <workItem from="1748314430984" duration="2381000" />
-    </task>
-    <task id="LOCAL-00001" summary="添加模型训练器模板">
-      <option name="closed" value="true" />
-      <created>1731495823864</created>
-      <option name="number" value="00001" />
-      <option name="presentableId" value="LOCAL-00001" />
-      <option name="project" value="LOCAL" />
-      <updated>1731495823864</updated>
+      <workItem from="1748314430984" duration="3621000" />
+      <workItem from="1748318475603" duration="1000" />
     </task>
     <task id="LOCAL-00002" summary="添加模型训练器模板">
       <option name="closed" value="true" />
@@ -710,7 +705,15 @@
       <option name="project" value="LOCAL" />
       <updated>1748315690108</updated>
     </task>
-    <option name="localTasksCounter" value="50" />
+    <task id="LOCAL-00050" summary="修改完目标检测模型训练器">
+      <option name="closed" value="true" />
+      <created>1748317221164</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1748317221164</updated>
+    </task>
+    <option name="localTasksCounter" value="51" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -728,7 +731,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="增大数据集至总量为550，平衡各类别数据集大小" />
     <MESSAGE value="预创建YOLO模型的训练器以适应更小规模的数据集，等待修改" />
     <MESSAGE value="更新完善YOLO代码" />
     <MESSAGE value="确认损失函数库位置及选择" />
@@ -753,7 +755,8 @@
     <MESSAGE value="将模型加载方式由直接读取通道换成真正适合YOLOV8模型的ultralytics库API调用" />
     <MESSAGE value="保存最新修改结果，转为实现双模型配合使用" />
     <MESSAGE value="开始新项目" />
-    <option name="LAST_COMMIT_MESSAGE" value="开始新项目" />
+    <MESSAGE value="修改完目标检测模型训练器" />
+    <option name="LAST_COMMIT_MESSAGE" value="修改完目标检测模型训练器" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/KonColle$model_analyze.coverage" NAME="model_analyze Coverage Results" MODIFIED="1747218314381" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
@@ -763,9 +766,10 @@
     <SUITE FILE_PATH="coverage/KonColle$Model_Trainer_YOLOv8.coverage" NAME="Model_Trainer_YOLOv8 Coverage Results" MODIFIED="1743521652256" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$Model_Trainer.coverage" NAME="Model_Trainer Coverage Results" MODIFIED="1732698102237" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$Course_design.coverage" NAME="Course_design Coverage Results" MODIFIED="1733052665888" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC/Models" />
+    <SUITE FILE_PATH="coverage/KonColle$Detection_Model_Trainer__1_.coverage" NAME="Detection_Model_Trainer (1) Coverage Results" MODIFIED="1748319092342" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$Coco_Copier.coverage" NAME="Coco_Copier Coverage Results" MODIFIED="1732691489640" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$classification_function_test__1_.coverage" NAME="classification_function_test (1) Coverage Results" MODIFIED="1741849070311" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
-    <SUITE FILE_PATH="coverage/KonColle$KonColle.coverage" NAME="KonColle Coverage Results" MODIFIED="1747220543842" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
+    <SUITE FILE_PATH="coverage/KonColle$KonColle.coverage" NAME="KonColle Coverage Results" MODIFIED="1748322686813" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/Model_Trainer_py$Model_Trainer__1_.coverage" NAME="Model_Trainer (1) Coverage Results" MODIFIED="1732007167945" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$Course_design__1_.coverage" NAME="Course_design (1) Coverage Results" MODIFIED="1741093581854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$Compare_Component.coverage" NAME="Compare_Component Coverage Results" MODIFIED="1743511031717" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />

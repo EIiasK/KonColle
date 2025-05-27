@@ -187,6 +187,11 @@ def main():
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     yolo.model.to(device)
+    # 解冻模型并启用训练模式，确保梯度可计算
+    model = yolo.model
+    model.train()
+    for param in model.parameters():
+        param.requires_grad = True
 
     # 超参和损失
     default_hyp = {'box':7.5,'cls':0.5,'dfl':1.5,'pose':12.0,'kobj':1.0,'overlap_mask':True,'mask_ratio':4.0}
@@ -196,9 +201,11 @@ def main():
         yolo.model.args.update(default_hyp)
         yolo.model.args = AttrDict(yolo.model.args)
 
+    # 损失函数
     loss_func = v8DetectionLoss(yolo.model)
     optimizer = AdamW(yolo.model.parameters(), lr=learning_rate)
     scheduler = ReduceLROnPlateau(optimizer, mode='min', factor=0.1, patience=3)
+    # AMP梯度缩放器
     scaler = GradScaler()
 
     best_wts = copy.deepcopy(yolo.model.state_dict())
@@ -234,9 +241,10 @@ def main():
                                      'bboxes':   torch.tensor([],dtype=torch.float32,device=device)}
 
                 optimizer.zero_grad()
-                with autocast(device.type):
+                with autocast():
+                    # 前向预测并计算检测损失
                     preds = model(imgs)
-                    det_loss,_ = loss_func(preds, batch_targets)
+                    det_loss, _ = loss_func(preds, batch_targets)
                 if phase=='train':
                     scaler.scale(det_loss).backward()
                     scaler.step(optimizer)
