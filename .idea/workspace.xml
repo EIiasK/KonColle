@@ -4,16 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3b69ddfd-0191-4e1c-8ba7-edbf8ab409f3" name="Changes" comment="将模型加载方式由直接读取通道换成真正适合YOLOV8模型的ultralytics库API调用">
+    <list default="true" id="3b69ddfd-0191-4e1c-8ba7-edbf8ab409f3" name="Changes" comment="保存最新修改结果，转为实现双模型配合使用">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/Compare_Component.py" beforeDir="false" afterPath="$PROJECT_DIR$/KC/Compare_Component.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/KonColle.py" beforeDir="false" afterPath="$PROJECT_DIR$/KC/KonColle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/Model_Trainer_YOLOv8.py" beforeDir="false" afterPath="$PROJECT_DIR$/KC/Model_Trainer_YOLOv8.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/Models/yolov8_KC_model.pt" beforeDir="false" afterPath="$PROJECT_DIR$/KC/Models/yolov8_KC_model.pt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/Redirector.py" beforeDir="false" afterPath="$PROJECT_DIR$/KC/Redirector.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/screenshot.png" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/KC/model_analyze.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/yolov8_KC_model.pt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -33,11 +25,12 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="main" />
+        <entry key="$PROJECT_DIR$" value="beta-branch" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="ROOT_SYNC" value="DONT_SYNC" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="MarkdownSettingsMigration">
     <option name="stateVersion" value="1" />
@@ -51,49 +44,49 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;DefaultHtmlFileTemplate&quot;: &quot;HTML File&quot;,
-    &quot;Node.js.Interface_Capture.js.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Coco_Copier.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Coco_Example_get.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Compare_Component (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.Compare_Component.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Course_design (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.Course_design.executor&quot;: &quot;Run&quot;,
-    &quot;Python.KonColle.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Model_Trainer (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.Model_Trainer.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Model_Trainer_YOLOv8.executor&quot;: &quot;Run&quot;,
-    &quot;Python.Redirector (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.Redirector.executor&quot;: &quot;Run&quot;,
-    &quot;Python.classification_function_test (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.function_test (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.model_analyze.executor&quot;: &quot;Run&quot;,
-    &quot;Python.s.executor&quot;: &quot;Run&quot;,
-    &quot;Python.test (1).executor&quot;: &quot;Run&quot;,
-    &quot;Python.test.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;beta-branch&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;D:/Programming/Project/github/KonColle&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.stylelint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.stylelint&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.15&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "DefaultHtmlFileTemplate": "HTML File",
+    "Node.js.Interface_Capture.js.executor": "Run",
+    "Python.Coco_Copier.executor": "Run",
+    "Python.Coco_Example_get.executor": "Run",
+    "Python.Compare_Component (1).executor": "Run",
+    "Python.Compare_Component.executor": "Run",
+    "Python.Course_design (1).executor": "Run",
+    "Python.Course_design.executor": "Run",
+    "Python.KonColle.executor": "Run",
+    "Python.Model_Trainer (1).executor": "Run",
+    "Python.Model_Trainer.executor": "Run",
+    "Python.Model_Trainer_YOLOv8.executor": "Run",
+    "Python.Redirector (1).executor": "Run",
+    "Python.Redirector.executor": "Run",
+    "Python.classification_function_test (1).executor": "Run",
+    "Python.function_test (1).executor": "Run",
+    "Python.model_analyze.executor": "Run",
+    "Python.s.executor": "Run",
+    "Python.test (1).executor": "Run",
+    "Python.test.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "git-widget-placeholder": "Individual-function-models-beta-branch",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "D:/Programming/Project/github/KonColle",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.stylelint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.stylelint": "",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="D:\Programming\Project\github\KonColle\KC\Game_interact" />
@@ -314,6 +307,9 @@
       <workItem from="1747705173059" duration="617000" />
       <workItem from="1747741840870" duration="2000" />
       <workItem from="1747742207207" duration="11000" />
+      <workItem from="1748313549162" duration="772000" />
+      <workItem from="1748314334024" duration="85000" />
+      <workItem from="1748314430984" duration="524000" />
     </task>
     <task id="LOCAL-00001" summary="添加模型训练器模板">
       <option name="closed" value="true" />
@@ -683,7 +679,15 @@
       <option name="project" value="LOCAL" />
       <updated>1742374300605</updated>
     </task>
-    <option name="localTasksCounter" value="47" />
+    <task id="LOCAL-00047" summary="保存最新修改结果，转为实现双模型配合使用">
+      <option name="closed" value="true" />
+      <created>1748313952825</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1748313952825</updated>
+    </task>
+    <option name="localTasksCounter" value="48" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -701,7 +705,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="添加标准标签提取器" />
     <MESSAGE value="更新标准标签提取器的代码缺失" />
     <MESSAGE value="增大数据集至总量为550，平衡各类别数据集大小" />
     <MESSAGE value="预创建YOLO模型的训练器以适应更小规模的数据集，等待修改" />
@@ -726,7 +729,8 @@
     <MESSAGE value="未带检测头修改的优化版本的训练代码" />
     <MESSAGE value="优化解析模型通道方式，成功出现检测框，但仍在修正检测框显示中" />
     <MESSAGE value="将模型加载方式由直接读取通道换成真正适合YOLOV8模型的ultralytics库API调用" />
-    <option name="LAST_COMMIT_MESSAGE" value="将模型加载方式由直接读取通道换成真正适合YOLOV8模型的ultralytics库API调用" />
+    <MESSAGE value="保存最新修改结果，转为实现双模型配合使用" />
+    <option name="LAST_COMMIT_MESSAGE" value="保存最新修改结果，转为实现双模型配合使用" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/KonColle$model_analyze.coverage" NAME="model_analyze Coverage Results" MODIFIED="1747218314381" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
