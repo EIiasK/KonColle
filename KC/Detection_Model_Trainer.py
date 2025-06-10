@@ -51,7 +51,7 @@ def main():
     # ---------------- 启动训练 ----------------
     model.train(
         data=data_yaml_path,
-        epochs=25,
+        epochs=15,
         imgsz=960,
         batch=16,
         workers=0,

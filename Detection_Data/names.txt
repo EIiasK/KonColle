@@ -1,0 +1,15 @@
+To_Startoff
+To_Supply
+Home_Button
+Supply_Empty
+Supply_Full
+To_Waters
+Map_5
+Map_5-2
+Map_Decide
+Map_Start
+Advance
+Retreat
+Next
+Back
+Compass

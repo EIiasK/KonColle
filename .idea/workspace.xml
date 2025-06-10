@@ -4,165 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="3b69ddfd-0191-4e1c-8ba7-edbf8ab409f3" name="Changes" comment="屏幕捕获特定区域的画面作为检测输入，目前存在置信度较低的问题，怀疑模型训练效果不佳">
-      <change afterPath="$PROJECT_DIR$/KC/datasets_split.py" afterDir="false" />
+    <list default="true" id="3b69ddfd-0191-4e1c-8ba7-edbf8ab409f3" name="Changes" comment="忽略history">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_11.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_11.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_12.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_12.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_13.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_13.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_14.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_14.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_15.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_16.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_16.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_17.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_17.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_18.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_18.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_19.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_19.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_20.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_20.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_21.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_21.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_22.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_22.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_23.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_23.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_24.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_24.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_25.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_25.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_26.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_26.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_27.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_27.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_28.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_28.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_29.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_29.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_30.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_30.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_4.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_6.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_6.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_7.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_8.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/main_menu/main_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/main_menu/main_9.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_11.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_11.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_12.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_12.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_13.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_13.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_14.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_14.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_15.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_16.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_16.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_17.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_17.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_18.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_18.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_19.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_19.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_20.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_20.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_21.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_21.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_4.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_6.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_6.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_7.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_8.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/mission_select/mission_select_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/mission_select/mission_select_9.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/advance_on/advance_on_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/advance_on/advance_on_1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/advance_on/advance_on_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/advance_on/advance_on_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/advance_on/advance_on_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/advance_on/advance_on_2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/advance_on/advance_on_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/advance_on/advance_on_3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/advance_on/advance_on_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/advance_on/advance_on_4.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/advance_on/advance_on_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/advance_on/advance_on_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/advance_on/advance_on_6.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/advance_on/advance_on_6.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/advance_on/advance_on_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/advance_on/advance_on_7.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/advance_on/advance_on_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/advance_on/advance_on_8.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/advance_on/advance_on_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/advance_on/advance_on_9.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_11.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_11.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_12.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_12.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_13.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_13.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_14.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_14.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_15.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_16.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_16.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_17.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_17.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_18.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_18.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_19.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_19.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_20.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_20.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_21.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_21.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_22.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_22.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_23.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_23.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_24.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_24.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_25.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_25.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_26.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_26.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_27.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_27.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_28.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_28.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_29.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_29.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_30.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_30.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_31.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_31.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_32.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_32.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_33.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_33.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_34.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_34.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_35.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_35.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_36.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_36.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_37.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_37.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_38.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_38.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_39.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_39.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_4.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_40.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_40.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_41.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_41.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_42.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_42.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_43.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_43.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_44.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_44.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_6.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_6.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_7.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_8.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/in_map/combat_result/combat_result_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/in_map/combat_result/combat_result_9.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_11.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_11.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_12.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_12.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_13.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_13.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_14.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_14.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_15.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_16.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_16.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_17.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_17.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_18.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_18.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_19.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_19.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_20.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_20.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_21.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_21.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_22.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_22.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_4.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_6.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_6.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_7.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_8.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_1/map_1_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_1/map_1_9.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_1.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_1.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_10.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_10.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_11.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_11.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_12.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_12.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_13.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_13.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_14.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_14.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_15.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_15.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_16.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_16.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_17.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_17.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_18.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_18.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_19.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_19.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_2.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_2.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_20.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_20.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_3.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_3.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_4.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_4.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_5.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_5.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_6.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_6.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_7.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_7.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_8.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_8.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Datasets/images/waters/map_5/map_5_9.png" beforeDir="false" afterPath="$PROJECT_DIR$/Pics&amp;annotations/images/waters/map_5/map_5_9.png" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/Coco_Copier.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/Coco_Example_get.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/Compare_Component.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/Detection_Model_Trainer.py" beforeDir="false" afterPath="$PROJECT_DIR$/KC/Detection_Model_Trainer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/KonColle.py" beforeDir="false" afterPath="$PROJECT_DIR$/KC/KonColle.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/Models/yolov8_KC_model.pt" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/Redirector.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/classification_function_test.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KC/model_analyze.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/history/images_2024_11_27.rar" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -221,7 +65,9 @@
     &quot;Python.Redirector.executor&quot;: &quot;Run&quot;,
     &quot;Python.classification_function_test (1).executor&quot;: &quot;Run&quot;,
     &quot;Python.coco2yolo (1).executor&quot;: &quot;Run&quot;,
+    &quot;Python.coco2yolo (2).executor&quot;: &quot;Run&quot;,
     &quot;Python.coco2yolo.executor&quot;: &quot;Run&quot;,
+    &quot;Python.datasets_split.executor&quot;: &quot;Run&quot;,
     &quot;Python.function_test (1).executor&quot;: &quot;Run&quot;,
     &quot;Python.model_analyze.executor&quot;: &quot;Run&quot;,
     &quot;Python.s.executor&quot;: &quot;Run&quot;,
@@ -302,7 +148,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="coco2yolo (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="coco2yolo (2)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="KonColle" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -311,12 +157,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/COCO_Datasets" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/Detection_Data" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/COCO_Datasets/coco2yolo.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/Detection_Data/coco2yolo.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -325,7 +171,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="coco2yolo" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="datasets_split" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="KonColle" />
       <option name="ENV_FILES" value="" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -334,12 +180,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/COCO_Datasets_Conversion" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/KC" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/COCO_Datasets_Conversion/coco2yolo.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/KC/datasets_split.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -375,9 +221,9 @@
       <list>
         <item itemvalue="Python.KonColle" />
         <item itemvalue="Python.Detection_Model_Trainer (1)" />
+        <item itemvalue="Python.datasets_split" />
+        <item itemvalue="Python.coco2yolo (2)" />
         <item itemvalue="Python.test" />
-        <item itemvalue="Python.coco2yolo (1)" />
-        <item itemvalue="Python.coco2yolo" />
       </list>
     </recent_temporary>
   </component>
@@ -489,31 +335,8 @@
       <workItem from="1748498236256" duration="1791000" />
       <workItem from="1748501641000" duration="1640000" />
       <workItem from="1748934283729" duration="29000" />
-      <workItem from="1749102645037" duration="5606000" />
-    </task>
-    <task id="LOCAL-00004" summary="更新gitignore,屏蔽.idea">
-      <option name="closed" value="true" />
-      <created>1731496843315</created>
-      <option name="number" value="00004" />
-      <option name="presentableId" value="LOCAL-00004" />
-      <option name="project" value="LOCAL" />
-      <updated>1731496843315</updated>
-    </task>
-    <task id="LOCAL-00005" summary="修改本地仓库">
-      <option name="closed" value="true" />
-      <created>1732002733163</created>
-      <option name="number" value="00005" />
-      <option name="presentableId" value="LOCAL-00005" />
-      <option name="project" value="LOCAL" />
-      <updated>1732002733163</updated>
-    </task>
-    <task id="LOCAL-00006" summary="上传使用Tensorflow库的完整代码，备份准备转用pytorch">
-      <option name="closed" value="true" />
-      <created>1732072779253</created>
-      <option name="number" value="00006" />
-      <option name="presentableId" value="LOCAL-00006" />
-      <option name="project" value="LOCAL" />
-      <updated>1732072779253</updated>
+      <workItem from="1749102645037" duration="5964000" />
+      <workItem from="1749546703130" duration="3536000" />
     </task>
     <task id="LOCAL-00007" summary="更新为pytorch实现方式">
       <option name="closed" value="true" />
@@ -883,7 +706,31 @@
       <option name="project" value="LOCAL" />
       <updated>1748489827015</updated>
     </task>
-    <option name="localTasksCounter" value="53" />
+    <task id="LOCAL-00053" summary="1.删除之前分类所用的嵌套数据集，整理成适配YOLO格式的文件存放方式，同时移除了之前处理标注文件的方式(现在通过VIA可以便捷编辑）。&#10;2.同时有个别按钮识别准确率不高，待解决。&#10;3.模型保存使用整体保存，保存完整的模型文件。">
+      <option name="closed" value="true" />
+      <created>1749110200876</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1749110200877</updated>
+    </task>
+    <task id="LOCAL-00054" summary="忽略history">
+      <option name="closed" value="true" />
+      <created>1749554863121</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1749554863121</updated>
+    </task>
+    <task id="LOCAL-00055" summary="忽略history">
+      <option name="closed" value="true" />
+      <created>1749554932939</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1749554932939</updated>
+    </task>
+    <option name="localTasksCounter" value="56" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -901,8 +748,6 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
-    <MESSAGE value="确认损失函数库位置及选择" />
-    <MESSAGE value="可以正确进行训练的YOLO训练器版本，性能待评估" />
     <MESSAGE value="YOLOv8模型训练完成，上传模型准备后续脚本编写" />
     <MESSAGE value="已调试好屏幕抓取的javascript文件，制作处理捕获图片的核心脚本" />
     <MESSAGE value="为输出的模型增加分类名称，确保输出的分类序号有对应的名称" />
@@ -926,29 +771,33 @@
     <MESSAGE value="修改完目标检测模型训练器" />
     <MESSAGE value="YOLO目标检测任务基本完成，目前静态图片检测待修改为屏幕捕获，且有部分目标按钮检测有准确率较低的问题。" />
     <MESSAGE value="屏幕捕获特定区域的画面作为检测输入，目前存在置信度较低的问题，怀疑模型训练效果不佳" />
-    <option name="LAST_COMMIT_MESSAGE" value="屏幕捕获特定区域的画面作为检测输入，目前存在置信度较低的问题，怀疑模型训练效果不佳" />
+    <MESSAGE value="1.删除之前分类所用的嵌套数据集，整理成适配YOLO格式的文件存放方式，同时移除了之前处理标注文件的方式(现在通过VIA可以便捷编辑）。&#10;2.同时有个别按钮识别准确率不高，待解决。&#10;3.模型保存使用整体保存，保存完整的模型文件。" />
+    <MESSAGE value="忽略history" />
+    <option name="LAST_COMMIT_MESSAGE" value="忽略history" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/KonColle$model_analyze.coverage" NAME="model_analyze Coverage Results" MODIFIED="1747218314381" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$s.coverage" NAME="s Coverage Results" MODIFIED="1732091729234" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$test__1_.coverage" NAME="test (1) Coverage Results" MODIFIED="1732959759479" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC/Models" />
     <SUITE FILE_PATH="coverage/KonColle$Redirector__1_.coverage" NAME="Redirector (1) Coverage Results" MODIFIED="1732099005991" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
-    <SUITE FILE_PATH="coverage/KonColle$Model_Trainer_YOLOv8.coverage" NAME="Model_Trainer_YOLOv8 Coverage Results" MODIFIED="1743521652256" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
-    <SUITE FILE_PATH="coverage/KonColle$Model_Trainer.coverage" NAME="Model_Trainer Coverage Results" MODIFIED="1732698102237" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
-    <SUITE FILE_PATH="coverage/KonColle$Course_design.coverage" NAME="Course_design Coverage Results" MODIFIED="1733052665888" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC/Models" />
-    <SUITE FILE_PATH="coverage/KonColle$Detection_Model_Trainer__1_.coverage" NAME="Detection_Model_Trainer (1) Coverage Results" MODIFIED="1749108987060" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
-    <SUITE FILE_PATH="coverage/KonColle$Coco_Copier.coverage" NAME="Coco_Copier Coverage Results" MODIFIED="1732691489640" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
+    <SUITE FILE_PATH="coverage/KonColle$Detection_Model_Trainer__1_.coverage" NAME="Detection_Model_Trainer (1) Coverage Results" MODIFIED="1749550459206" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$classification_function_test__1_.coverage" NAME="classification_function_test (1) Coverage Results" MODIFIED="1741849070311" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
+    <SUITE FILE_PATH="coverage/KonColle$KonColle.coverage" NAME="KonColle Coverage Results" MODIFIED="1749551052127" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
+    <SUITE FILE_PATH="coverage/KonColle$via2dark.coverage" NAME="via2dark Coverage Results" MODIFIED="1748496514983" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/COCO_Datasets_Conversion" />
+    <SUITE FILE_PATH="coverage/KonColle$Redirector.coverage" NAME="Redirector Coverage Results" MODIFIED="1743510908218" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
+    <SUITE FILE_PATH="coverage/KonColle$test.coverage" NAME="test Coverage Results" MODIFIED="1749105622763" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
+    <SUITE FILE_PATH="coverage/KonColle$coco2yolo__2_.coverage" NAME="coco2yolo (2) Coverage Results" MODIFIED="1749550273478" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/Detection_Data" />
+    <SUITE FILE_PATH="coverage/KonColle$Model_Trainer__1_.coverage" NAME="Model_Trainer (1) Coverage Results" MODIFIED="1732627723152" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
+    <SUITE FILE_PATH="coverage/KonColle$datasets_split.coverage" NAME="datasets_split Coverage Results" MODIFIED="1749550439507" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
+    <SUITE FILE_PATH="coverage/KonColle$Model_Trainer_YOLOv8.coverage" NAME="Model_Trainer_YOLOv8 Coverage Results" MODIFIED="1743521652256" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
+    <SUITE FILE_PATH="coverage/KonColle$Course_design.coverage" NAME="Course_design Coverage Results" MODIFIED="1733052665888" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC/Models" />
+    <SUITE FILE_PATH="coverage/KonColle$Model_Trainer.coverage" NAME="Model_Trainer Coverage Results" MODIFIED="1732698102237" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
+    <SUITE FILE_PATH="coverage/KonColle$Coco_Copier.coverage" NAME="Coco_Copier Coverage Results" MODIFIED="1732691489640" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$coco2yolo__1_.coverage" NAME="coco2yolo (1) Coverage Results" MODIFIED="1748497869069" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/COCO_Datasets" />
-    <SUITE FILE_PATH="coverage/KonColle$KonColle.coverage" NAME="KonColle Coverage Results" MODIFIED="1749109709899" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/Model_Trainer_py$Model_Trainer__1_.coverage" NAME="Model_Trainer (1) Coverage Results" MODIFIED="1732007167945" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$Course_design__1_.coverage" NAME="Course_design (1) Coverage Results" MODIFIED="1741093581854" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$Compare_Component.coverage" NAME="Compare_Component Coverage Results" MODIFIED="1743511031717" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$Coco_Example_get.coverage" NAME="Coco_Example_get Coverage Results" MODIFIED="1732690485168" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
-    <SUITE FILE_PATH="coverage/KonColle$via2dark.coverage" NAME="via2dark Coverage Results" MODIFIED="1748496514983" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/COCO_Datasets_Conversion" />
-    <SUITE FILE_PATH="coverage/KonColle$Redirector.coverage" NAME="Redirector Coverage Results" MODIFIED="1743510908218" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
-    <SUITE FILE_PATH="coverage/KonColle$test.coverage" NAME="test Coverage Results" MODIFIED="1749105622763" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
-    <SUITE FILE_PATH="coverage/KonColle$Model_Trainer__1_.coverage" NAME="Model_Trainer (1) Coverage Results" MODIFIED="1732627723152" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$Compare_Component__1_.coverage" NAME="Compare_Component (1) Coverage Results" MODIFIED="1732692128793" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$function_test__1_.coverage" NAME="function_test (1) Coverage Results" MODIFIED="1741845386024" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/KC" />
     <SUITE FILE_PATH="coverage/KonColle$coco2yolo.coverage" NAME="coco2yolo Coverage Results" MODIFIED="1748497398711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/COCO_Datasets_Conversion" />

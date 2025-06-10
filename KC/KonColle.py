@@ -40,7 +40,7 @@ def main():
         full_img = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
         crop = full_img[Y:Y+H, X:X+W]
 
-        results = model(crop, conf=0.005, imgsz=(1120, 672), device=device)[0]
+        results = model(crop, conf=0.5, imgsz=(1120, 672), device=device)[0]
         boxes   = results.boxes.xyxy.cpu().numpy()
         confs   = results.boxes.conf.cpu().numpy()
         classes = results.boxes.cls.cpu().numpy().astype(int)
@@ -53,16 +53,16 @@ def main():
             cv2.rectangle(annotated,
                           (int(x1), int(y1)),
                           (int(x2), int(y2)),
-                          (0, 0, 0), 2)  # 黑色 (0,0,0)
+                          (0, 255, 0), 2)  # 黑色 (0,0,0)
 
             # 背景用黑色，文字用粉色 (B=255, G=0, R=255)
             (tw, th), _ = cv2.getTextSize(label, cv2.FONT_HERSHEY_SIMPLEX, 0.6, 1)
             cv2.rectangle(annotated,
                           (int(x1), int(y1) - th - 4),
                           (int(x1) + tw, int(y1)),
-                          (0, 0, 0), -1)
+                          (0, 255, 0), -1)
             cv2.putText(annotated, label, (int(x1), int(y1) - 2),
-                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 0, 255), 1)
+                        cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 1)
 
         # 8. 对 annotated 做缩放，再显示
         small = cv2.resize(annotated, (display_W, display_H))
